@@ -23,15 +23,25 @@ def check(root: Path) -> list[str]:
     words = len(text.split())
     if words > 1250:
         errors.append(f'SKILL.md has {words} words; keep the entrypoint at or below 1250')
+    skill_root = skill.parent.resolve()
     for path in root.rglob('*.md'):
         if '.git' in path.relative_to(root).parts:
             continue
         content = path.read_text(encoding='utf-8')
+        relative = path.resolve().relative_to(root.resolve())
+        limit = None
+        if relative.parts[:3] == ('skills', 'braces', 'playbooks'):
+            limit = 650
+        elif relative.parts[:3] == ('skills', 'braces', 'references'):
+            limit = 900
+        if limit is not None and len(content.split()) > limit:
+            errors.append(f'{relative} exceeds its {limit}-word instruction budget')
         for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', content):
             if '://' in target or target.startswith('#'):
                 continue
             destination = (path.parent / target.split('#', 1)[0]).resolve()
-            if not destination.is_relative_to(root.resolve()) or not destination.exists():
+            boundary = skill_root if path.resolve().is_relative_to(skill_root) else root.resolve()
+            if not destination.is_relative_to(boundary) or not destination.exists():
                 errors.append(f'{path.relative_to(root)} has a broken local link: {target}')
     return errors
 

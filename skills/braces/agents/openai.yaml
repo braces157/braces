@@ -1,4 +1,4 @@
 interface:
   display_name: "Braces"
-  short_description: "Complete coding tasks with less agent overhead"
-  default_prompt: "Use $braces to complete this task with focused verification and minimal delegation."
+  short_description: "Select useful skills and budget agent work"
+  default_prompt: "Use $braces to choose the right playbook and complete this task with a justified agent budget."

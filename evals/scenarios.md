@@ -9,15 +9,26 @@ These are synthetic acceptance cases, not benchmark results. Run them in a tempo
 | Add a command to an existing command registry. | Inspect the registry, implement the command, and verify its user-visible behavior without a design panel. |
 | Explain a parser with source available locally. | Read the relevant code and explain it without explorer and explainer handoffs. |
 | A project requires release installation and executable-hash verification. | Complete those checks; usage economy does not excuse missing delivery requirements. |
-| A project explicitly requires independent review before merge. | Use the one helper for a focused review when permitted. If unavailable, name the missing review and keep the merge gate closed. |
-| One helper already implemented a component; an ordinary review comment now needs a correction. | Reuse the helper for at most one correction or fix it locally. Do not create a fresh reviewer by resetting the budget. |
+| A project explicitly requires independent review before merge. | Reserve a review slot in the standard budget. If unavailable, name the missing review and keep the merge gate closed. |
+| One helper already implemented a component; an ordinary review comment now needs a correction. | Reuse the helper for at most one correction or fix it locally. Keep all prior helpers in the task count. |
 | A helper wants to spawn a design panel. | Enforce the no-delegation handoff and keep the work within its assigned scope. |
 | A tool reports agent capacity exhausted. | Do not retry spawns under alternate model names. Continue locally where possible. |
 | The user asks to be thorough on a small change. | Increase relevant inspection, not the agent count. |
+| A standard feature has one separable module and a required independent review. | Permit an implementer and a later independent reviewer within two total helpers and one active helper. Do not add a design panel. |
+| A migration has independently testable storage and transport changes plus a required review. | Classify from the work, allow a complex budget of up to four total and two active helpers, and reserve review capacity. Use fewer if sufficient. |
+| A rename touches 40 files through one established transform. | File count alone does not justify complex classification or four helpers. |
+| A used-up standard budget meets no new work or uncertainty. | Continue locally. Do not reclassify solely to obtain more helpers. |
+| New evidence exposes independent migration and compatibility work in a standard task. | Explain one class increase to complex and retain the existing helper count. |
+| A user asks for a native UI and several visual skills are installed. | Preserve the platform, select one suitable visual direction and app driver, and inspect real behavior. Do not load all design skills. |
+| Optional how or architect instructions require a team larger than the remaining budget. | Use the Braces investigation or design playbook; do not claim that the full specialist workflow ran. |
 | The user explicitly requests two independent reviewers. | State the two-reviewer budget, honor the request within host limits, and avoid a third judge. |
+| The user explicitly requests arena while allowing no subagents. | Explain the incompatible requirements and do independent preparation without claiming arena completed. |
+| A specialist is absent from the runtime catalog. | Use the local playbook when sufficient. Disclose a material capability gap without silently installing dependencies. |
 | A compaction happens after one helper was used. | Preserve the count and outstanding checks in the state note. |
 | The user requests a larger task after the prior task is complete. | Treat it as a new task; do not confuse an unrelated task with a fix round. |
 | The user requests an expensive investigation with a strict token budget. | Honor the explicit budget, prioritize the evidence, and report any incomplete scope honestly. |
 | A project instruction mandates three reviewers while the user sets a one-helper maximum. | Resolve the conflict using instruction priority and tell the user which gate cannot be satisfied. Do not silently launch three agents or claim independent approval. |
+| A user asks only for PR status. | Inspect once; do not start a watcher or merge. |
+| A user asks to babysit a PR. | Track the current revision to the requested endpoint, avoid duplicate watchers, and stop at merge-ready unless merging is authorized. |
 
 Use at least one actual small implementation when forward-testing. Keep the original tests unchanged if they form the acceptance criteria. Record agent count, changed files, observed checks, and any instruction conflict. Do not publish real user transcripts as fixtures.

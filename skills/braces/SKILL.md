@@ -1,54 +1,65 @@
 ---
 name: braces
-description: Complete development work with controlled agent and context usage. Use when the user requests Braces, asks for a usage-conscious coding workflow, or configures Braces as their default working style.
+description: Coordinate development with selective playbooks, specialist skills, and task-sized agent budgets. Use when the user requests Braces, asks for a usage-conscious coding workflow, or configures Braces as their default working style.
 ---
 
 # Braces
 
-Finish the user's task with the smallest useful process. Work in the current chat by default. Keep relevant project instructions, sound implementation, and observed verification.
+Complete the task with the smallest process that resolves its actual uncertainty. Keep project requirements and observed verification. Work in the current chat whenever delegation would add more coordination than useful work.
 
-## Scope and execution
+## Choose the route
 
-Read the applicable project instructions and just enough source to locate the change. Establish the requested result and a practical completion check. For a small task, proceed directly. Use a short plan only when dependencies or uncertainty make it useful.
+Read applicable project instructions and enough source to identify the result and completion check. Handle a small, clear task directly. For substantive work, read only the matching playbook. Read another only when the task enters that kind of work.
 
-Implement ordinary features, fixes, refactors, explanations, and documentation yourself. Crossing a function boundary, opening a PR, or calling a task important does not trigger delegation or a review panel. Sketch types and ownership inline when design is needed. Compare alternatives yourself before considering another agent.
+| Work | Playbook |
+| --- | --- |
+| Feature, refactor, migration, or sustained implementation | [Build](playbooks/build.md) |
+| Bug, failing test, runtime symptom, or performance problem | [Debug](playbooks/debug.md) |
+| Uncertain architecture, UI interaction, or competing approaches | [Design](playbooks/design.md) |
+| Explanation, research, source investigation, or session recall | [Investigate](playbooks/investigate.md) |
+| Review, CI, PR preparation, babysitting, or release | [Review and deliver](playbooks/review-and-deliver.md) |
 
-Load a specialist skill only for an actual capability or explicit request. Do not activate Poteto, architecture tournaments, explanation agents, comment reviewers, or audit agents as automatic workflow stages. Do not load a chain of general-purpose skills to restate these instructions. A specialist's optional delegation must fit the budget below. If the user explicitly requests a workflow, honor its necessary steps and explain any conflict with a stated budget.
+These playbooks work without pstack. Use [specialist routing](references/specialists.md) when a requested capability would benefit from an installed specialist. Read its relevant row, then that skill; do not load the catalog of skills it mentions. Select one primary specialist and add another only for a distinct need.
 
-## Delegation budget
+Do not automatically activate poteto-mode as a second coordinator. Function boundaries, PR creation, and words such as "important" or "thorough" do not trigger panels. Explicit workflow requests retain their meaning. If the user requests arena, do not silently replace it with your own single-pass comparison.
 
-Default to zero subagents. Allow at most one helper over the entire task, only when the host permits delegation and a specific need justifies it. This is a ceiling, not a target. A task includes its implementation, fixes, review, and delivery. Do not reset the count at a phase change, follow-up correction, or context compaction.
+## Size the task before delegating
 
-Before a spawn, name the bounded question or owned files and the concrete benefit. A helper is justified for a substantial independent work unit, a focused investigation that would crowd out the implementation context, or an independent review required by the user or project. A specific unresolved security, concurrency, or data-loss risk can justify that one review. Routine work, prose cleanup, status checks, and reassurance cannot.
+These budgets permit delegation when a concrete benefit justifies it; they do not require filling slots. They never override host restrictions or a tighter user budget.
 
-Count all helpers across routed skills and descendants. Helpers must not spawn agents or activate delegation workflows. The default budget allows one active helper. Further agents require an explicit user request that expands the budget. Requests such as "be thorough", "finish it", and "use your judgment" do not expand it. If the user explicitly requests a larger team or named multi-agent workflow, use its smallest valid team within runtime limits. That explicit team may run concurrently. The parent owns every dispatch. State the team size before dispatch.
+| Class | Evidence | Total helpers | Active helpers |
+| --- | --- | ---: | ---: |
+| Small | Clear local change or bounded explanation | 0 | 0 |
+| Standard | One coherent feature, defect, or investigation | Up to 2 | 1 |
+| Complex | Multiple independent deliverables, a migration with separate validation stages, or distinct substantial uncertainties | Up to 4 | 2 |
+| Explicit team | User requests a team or named multi-agent workflow | Smallest team that satisfies it | Within host capacity |
 
-Prefer a minimal handoff over full conversation inheritance when the runtime supports it. Include the goal, relevant paths, decisions, ownership, acceptance check, and the no-delegation rule. Tell a writing helper that others share the workspace and that it must preserve their changes. Return findings, changed files, checks, and blockers in a compact report.
+Most standard work still uses zero helpers. File count and perceived importance do not determine complexity. Before the first spawn, state the class, ceiling, and each planned role's concrete benefit. Reserve a slot for independent review when it is required. An implementation agent cannot independently approve its own work.
 
-Continue independent work while the helper runs. Do not explore its assigned question in parallel. Inspect its result and verify the integrated behavior. Reuse that helper for a closely related correction when supported. Limit follow-up to one focused correction pass, then take over or report the unresolved issue. A capacity error is not permission to retry with other models. If a genuinely required independent review cannot run, finish other authorized work and identify that exact remaining gate.
+The budget covers implementation, correction, review, and delivery. Count all distinct helper contexts, including replacements and agents started by routed workflows. Do not reset it at a phase change, compaction, or related follow-up. If newly discovered work changes the class, explain that evidence before increasing the ceiling; allow at most one such increase, up to the complex ceiling. Budget exhaustion alone is not evidence. Beyond that, continue locally or seek an explicit expansion only if needed.
 
-## Models and reasoning
+## Coordinate useful work
 
-Use the current model for work you can complete yourself. Do not spawn merely to obtain another model or claim to change the parent chat's model. Use only models and effort levels the runtime exposes.
+Delegate a bounded implementation with clear ownership, a substantial independent investigation, or a focused independent review. Routine status, prose cleanup, comment review, and reassurance stay in the main chat. Use different models only when the perspective matters, not to create a panel by habit.
 
-When a helper earns its place, respect the user's configured routing. In the absence of an override, prefer Sol for code, debugging, unfamiliar-source investigation, and evidence synthesis. Prefer Terra for established explanations, visual inspection, and defined computer-use work. Use high reasoning by default; do not lower a user's explicit effort preference to save usage.
+The parent owns every dispatch. Helpers must not spawn agents or activate delegation workflows. Enforce this through the handoff even when a specialist normally delegates. Optional specialists must fit the budget and this coordination model; otherwise use the matching Braces playbook. For an explicit workflow whose mandatory steps conflict with user or host limits, explain the conflict and finish independent work without claiming the workflow completed.
 
-Escalate difficult unresolved reasoning to Sol extra high when available. Astra high is an alternative when broader judgment or a different perspective has a concrete purpose. Do not run both by habit. Escalation still consumes the same helper budget. If a preferred model is unavailable, disclose the fallback. Do not fetch benchmarks or pricing unless the task needs them.
+Use minimal context when supported. Supply the goal, paths, decisions, owned files, acceptance check, budget, and no-delegation rule. Tell writers that others share the workspace and that they must preserve others' changes. Isolate overlapping writes, or sequence them. Keep agent reports compact with findings, files, checks, and blockers.
 
-## Context and tools
+Continue independent work without duplicating the helper's assigned investigation. Inspect its output and verify integrated behavior. Reuse a helper for a related correction when supported. After one focused follow-up, take over or report the remaining issue. Do not retry capacity failures under other models. Never replace a required independent review with self-approval.
 
-Search before reading. Read relevant sections, keep tool output bounded, and reuse facts already established. Batch independent reads or checks when safe. Keep edits and dependent actions sequential. Summarize large logs locally rather than printing entire transcripts or repeatedly rereading files.
+## Models and context
 
-Read past sessions only when the task needs them. Start with a relevant summary and inspect raw evidence for the disputed claim. Do not load unrelated histories. Carry a short state note through long tasks with decisions, checks, pending work, and agents used. Do not require audit files, copied playbooks, or decision-log reviews for routine work.
+Use the current model for work you can complete yourself. Do not spawn merely to switch models or claim to change the parent model. Honor configured routing and use only runtime-supported models and effort levels.
 
-When two attempts fail for the same reason, test the shared assumption before trying again. Do not restart a successful check unless relevant inputs changed or its result is stale. Stop polling unchanged external state. For an explicitly requested monitor, use the supported scheduling mechanism and report meaningful changes.
+Absent an override, prefer Sol for coding, debugging, unfamiliar-source exploration, and synthesis. Prefer Terra for established explanations, visual inspection, and defined computer-use work. Use high reasoning by default. Sol extra high is the first escalation for difficult unresolved reasoning. Astra high is an alternative when a broader perspective has a concrete purpose. Escalation consumes the same agent budget. Disclose unavailable preferences and fallbacks; do not lower an explicit effort preference automatically.
 
-## Verification and delivery
+Search before reading. Bound output, batch independent reads, and reuse established evidence. Keep edits and dependent actions sequential. Summarize large logs locally. Read history only when relevant, beginning with summaries and checking raw evidence for disputed claims.
 
-For a bug, reproduce it when practical and verify the fix on the same behavior. For a feature, exercise the user's path. Run project-required checks and the focused checks needed for the change. Add tests for behavior and meaningful regressions, not to mirror implementation or decorate a prose edit.
+For long work, keep a short state note with scope, decisions, completed checks, remaining work, and agents used against the budget. Do not copy entire playbooks or require audit-file reviews. When two attempts share a failure, test their common assumption. Repeat a successful check only after relevant changes or stale evidence.
 
-Review your diff for correctness, unrelated changes, and unnecessary complexity. Combine comment and prose cleanup into that pass. Independent review is not an automatic gate; preserve it when the user or project actually requires it. Do not substitute self-review for an explicitly required independent verdict.
+## Completion
 
-Respect delivery requirements such as a release build, installation, PATH resolution, or UI inspection. A compile alone does not prove the feature works. Report an unperformed check as unperformed. Complete authorized work without asking the user to repeat permission. This skill grants no permission to publish, deploy, delete, merge, or send messages beyond the user's request and governing instructions.
+Exercise the changed behavior and run required project checks. Preserve delivery requirements such as release builds, installation, PATH checks, and UI inspection. Combine routine correctness, comment, and prose cleanup into one final diff review. Add independent review only when required or justified by a specific unresolved risk.
 
-Finish with the outcome, relevant checks, and remaining limitations. Keep it concise. Report an exception to the delegation budget when one occurred. Do not invent token savings, prices, or billing totals from agent counts or instruction length.
+Complete authorized work without repeatedly asking permission. This skill grants no additional authority to publish, deploy, delete, merge, or send messages. Report the outcome, checks, and material limitations concisely. Distinguish an unperformed check from a pass. Report budget exceptions; never infer token or cost savings from instruction length or agent counts.
