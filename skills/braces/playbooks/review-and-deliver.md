@@ -10,11 +10,13 @@ Use one independent reviewer when required or when a specific unresolved risk ea
 
 Triage each human or automated finding as actionable, unsupported, or needing a decision, using code and behavior as evidence. Fix accepted findings together when safe. Recheck affected behavior and request a focused follow-up from the same reviewer if needed. Passing CI does not substitute for an explicitly required independent review.
 
-## Prepare a PR
+## Prepare commits and a PR
 
-Inspect repository status and preserve unrelated work. Follow the repository's contribution and branch rules. Include only intended files. Write a description of the problem, resulting behavior, relevant validation, and remaining limits. Use the template when present. Attach the created PR in hosts that support task attachments.
+Inspect repository status and preserve unrelated work. Follow the repository's contribution and branch rules. Include only intended files. Before drafting, read [PR and commit writing](../references/pr-and-commit-writing.md). Inspect the staged diff for each commit and the complete diff against the PR's actual base for its title and body. Check the repository template and recent message conventions.
 
-Verify remote state after publication. Report an unavailable check rather than declaring a PR merge-ready. Publication and merging require authorization from the task or standing instructions.
+Group changes into coherent, reviewable commits. Each message explains its own change. Keep the PR description aligned with the final branch, including after fixes or scope changes. Do not rewrite published history solely to polish messages without authorization. Attach the created PR in hosts that support task attachments.
+
+For multiline text, use a structured tool argument or a UTF-8 body file with real newlines. Read back the published title and body to catch stale wording, broken formatting, and literal escape sequences. Report an unavailable check rather than declaring a PR merge-ready. Publication and merging require authorization from the task or standing instructions.
 
 ## Babysit deliberately
 

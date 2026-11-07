@@ -23,7 +23,9 @@ Braces loads only the playbook relevant to the current work:
 - [Debug](skills/braces/playbooks/debug.md) covers reproduction, root causes, CI diagnosis, and performance experiments.
 - [Design](skills/braces/playbooks/design.md) covers architecture choices, prototypes, and real UI verification.
 - [Investigate](skills/braces/playbooks/investigate.md) covers explanations, evidence gathering, and session recall.
-- [Review and deliver](skills/braces/playbooks/review-and-deliver.md) covers review, PRs, babysitting, and authorized releases.
+- [Review and deliver](skills/braces/playbooks/review-and-deliver.md) covers review, commits, PRs, babysitting, and authorized releases.
+
+The [PR and commit writing guide](skills/braces/references/pr-and-commit-writing.md) defines concrete titles, descriptions scaled to the change, commit rationale, and evidence checks. It follows repository conventions and templates, with examples adapted from pstack's writing guidance. Text is checked against the actual diff and observed verification results.
 
 The [specialist map](skills/braces/references/specialists.md) connects concrete needs to optional installed skills such as architecture, arena, formal verification, UI design, document creation, and PR repair. Loading a specialist is a separate decision from spawning an agent. Braces retains control of the task budget and dispatches.
 

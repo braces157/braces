@@ -17,7 +17,9 @@ Read applicable project instructions and enough source to identify the result an
 | Bug, failing test, runtime symptom, or performance problem | [Debug](playbooks/debug.md) |
 | Uncertain architecture, UI interaction, or competing approaches | [Design](playbooks/design.md) |
 | Explanation, research, source investigation, or session recall | [Investigate](playbooks/investigate.md) |
-| Review, CI, PR preparation, babysitting, or release | [Review and deliver](playbooks/review-and-deliver.md) |
+| Review, CI, commits, PR preparation, babysitting, or release | [Review and deliver](playbooks/review-and-deliver.md) |
+
+When writing or revising PR titles, descriptions, or commit messages, read [PR and commit writing](references/pr-and-commit-writing.md), including for small changes. It defines the evidence, structure, and wording for those artifacts.
 
 These playbooks work without pstack. Use [specialist routing](references/specialists.md) when a requested capability would benefit from an installed specialist. Read its relevant row, then that skill; do not load the catalog of skills it mentions. Select one primary specialist and add another only for a distinct need.
 

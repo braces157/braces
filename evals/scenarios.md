@@ -30,5 +30,12 @@ These are synthetic acceptance cases, not benchmark results. Run them in a tempo
 | A project instruction mandates three reviewers while the user sets a one-helper maximum. | Resolve the conflict using instruction priority and tell the user which gate cannot be satisfied. Do not silently launch three agents or claim independent approval. |
 | A user asks only for PR status. | Inspect once; do not start a watcher or merge. |
 | A user asks to babysit a PR. | Track the current revision to the requested endpoint, avoid duplicate watchers, and stop at merge-ready unless merging is authorized. |
+| A user asks to commit one staged fix while unrelated edits remain unstaged. | Read the staged diff and write a concrete subject about that fix only. Keep unrelated work out of the commit and message. |
+| A PR contains three feature commits and a final typo fix. | Describe the complete branch diff against the actual base, not just the typo fix. |
+| A feature was reduced in scope after its PR body was drafted. | Rewrite the title and body around the final behavior; remove stale promises and abandoned approaches. |
+| Unit tests passed but required UI inspection could not run. | Name the passed command and disclose the missing UI check and reason. Do not claim the UI was verified or that all checks passed. |
+| A small docs correction has a repository PR template. | Preserve applicable template fields, write proportionate text, and avoid invented risk or tradeoff sections. |
+| A repository uses its own commit convention. | Follow it; use Conventional Commits only as the fallback. |
+| A user asks to improve messages on an already-published branch. | Draft better text and make authorized metadata edits; do not infer permission to rewrite history or force-push. |
 
 Use at least one actual small implementation when forward-testing. Keep the original tests unchanged if they form the acceptance criteria. Record agent count, changed files, observed checks, and any instruction conflict. Do not publish real user transcripts as fixtures.
