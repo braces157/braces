@@ -1,48 +1,67 @@
-from pathlib import Path
+#!/usr/bin/env python3
+"""Repository validation entrypoint wrapping validate_skill.py and root doc checks."""
+
+from __future__ import annotations
+
+import importlib.util
 import re
 import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+MD_LINK_RE = re.compile(r'\[[^\]]*\]\(([^)]+)\)')
+
+
+def _load_validator(validator_path: Path):
+    spec = importlib.util.spec_from_file_location('_braces_validate_skill', str(validator_path))
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f'Unable to load validator from {validator_path}')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def check(root: Path) -> list[str]:
-    errors = []
-    skill = root / 'skills' / 'braces' / 'SKILL.md'
-    required = [skill, root / 'skills/braces/agents/openai.yaml', root / 'LICENSE']
+    errors: list[str] = []
+    skill_dir = root / 'skills' / 'braces'
+    validator_path = skill_dir / 'scripts' / 'validate_skill.py'
+    required = [
+        skill_dir / 'SKILL.md',
+        validator_path,
+        root / 'LICENSE',
+        root / 'ATTRIBUTION.md',
+        root / 'GEMINI.md.template',
+        root / 'tools' / 'sync_skills.py',
+    ]
     for path in required:
         if not path.is_file():
             errors.append(f'Missing {path.relative_to(root)}')
-    if not skill.is_file():
+    if errors:
         return errors
-    text = skill.read_text(encoding='utf-8')
-    match = re.match(r'\A---\n(.*?)\n---\n', text, re.S)
-    if not match:
-        errors.append('SKILL.md needs YAML frontmatter')
-    else:
-        fields = dict(re.findall(r'^(name|description): (.+)$', match[1], re.M))
-        if fields.get('name') != 'braces' or not fields.get('description', '').strip():
-            errors.append('SKILL.md needs name: braces and a description')
-    words = len(text.split())
-    if words > 1250:
-        errors.append(f'SKILL.md has {words} words; keep the entrypoint at or below 1250')
-    skill_root = skill.parent.resolve()
-    for path in root.rglob('*.md'):
-        if '.git' in path.relative_to(root).parts:
+
+    validator = _load_validator(validator_path)
+    result = validator.validate_skill_dir(skill_dir)
+    for err in result.errors:
+        errors.append(f'skills/braces: {err}')
+
+    repo_resolved = root.resolve()
+    for doc_name in ('README.md', 'ATTRIBUTION.md'):
+        doc_path = root / doc_name
+        if not doc_path.is_file():
             continue
-        content = path.read_text(encoding='utf-8')
-        relative = path.resolve().relative_to(root.resolve())
-        limit = None
-        if relative.parts[:3] == ('skills', 'braces', 'playbooks'):
-            limit = 650
-        elif relative.parts[:3] == ('skills', 'braces', 'references'):
-            limit = 900
-        if limit is not None and len(content.split()) > limit:
-            errors.append(f'{relative} exceeds its {limit}-word instruction budget')
-        for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', content):
-            if '://' in target or target.startswith('#'):
+        content = doc_path.read_text(encoding='utf-8')
+        for target in MD_LINK_RE.findall(content):
+            if '://' in target or target.startswith('#') or target.startswith('mailto:'):
                 continue
-            destination = (path.parent / target.split('#', 1)[0]).resolve()
-            boundary = skill_root if path.resolve().is_relative_to(skill_root) else root.resolve()
-            if not destination.is_relative_to(boundary) or not destination.exists():
-                errors.append(f'{path.relative_to(root)} has a broken local link: {target}')
+            rel_target = target.split('#', 1)[0].strip()
+            if not rel_target:
+                continue
+            destination = (doc_path.parent / rel_target).resolve()
+            if not destination.is_relative_to(repo_resolved) or not destination.exists():
+                errors.append(f'{doc_name} has a broken local link: {target}')
+
     return errors
 
 
@@ -53,4 +72,4 @@ if __name__ == '__main__':
         print('\n'.join(problems), file=sys.stderr)
         sys.exit(1)
     word_count = len((repository / 'skills/braces/SKILL.md').read_text(encoding='utf-8').split())
-    print(f'Package checks passed. SKILL.md: {word_count}/1250 words.')
+    print(f'Package checks passed. SKILL.md: {word_count} words.')
