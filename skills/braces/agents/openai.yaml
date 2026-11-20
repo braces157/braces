@@ -1,4 +1,0 @@
-interface:
-  display_name: "Braces"
-  short_description: "Select useful skills and budget agent work"
-  default_prompt: "Use $braces to choose the right playbook and complete this task with a justified agent budget."

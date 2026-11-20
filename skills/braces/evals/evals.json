@@ -1,0 +1,228 @@
+{
+  "skill": "braces",
+  "version": 2,
+  "trigger_tests": [
+    {
+      "id": "pos-office-hours-wedge",
+      "prompt": "braces office-hours: I want to add real-time multi-table tournament tracking to PBAVN, help me challenge premises and scope the smallest vertical wedge before we code",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "office-hours"
+    },
+    {
+      "id": "pos-build-feature",
+      "prompt": "braces build: implement customizable keyboard shortcuts in Tuitify in clean vertical slices with unit tests",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "build"
+    },
+    {
+      "id": "pos-refactor-monolith",
+      "prompt": "src/usage.rs passed 3,100 lines and has six .lock().unwrap() calls; scan hotspots and split it into deep modules with characterization tests first",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "refactor"
+    },
+    {
+      "id": "pos-debug-root-cause",
+      "prompt": "Fix this bug in pba-vision where homography warps fail when only 3 table corners are visible; reproduce it and trace to the root cause",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "debug"
+    },
+    {
+      "id": "pos-hygiene-worktrees",
+      "prompt": "This repo has six old git worktrees and local main is 20 commits behind origin; audit which ones are safe to prune without losing .env.local",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "hygiene"
+    },
+    {
+      "id": "pos-review-security-diff",
+      "prompt": "Audit my staged diff for removed CSRF or auth guards, caller blast radius, and CI pinning gaps before I push",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "review"
+    },
+    {
+      "id": "pos-verify-win-binary",
+      "prompt": "I just ran cargo build --release for tuitify; verify that the tuitify executable on my Windows PATH matches the new binary hash with zero shadowing",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "verify"
+    },
+    {
+      "id": "pos-ship-pr-feedback",
+      "prompt": "Address the inline CodeRabbit review comments on PR #35, fix the failing GitHub Actions check, and tell me when it looks ready to merge",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "ship"
+    },
+    {
+      "id": "pos-forge-skill",
+      "prompt": "Author a new portable agent skill for database migration safety, tighten its frontmatter triggers, and validate the directory",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "forge"
+    },
+    {
+      "id": "pos-holdout-design-ui",
+      "prompt": "Design the new settings modal using our DESIGN.md tokens across empty, loading, error, overflow, keyboard, and contrast states, then verify live in Chrome without leaving PNGs in the repo",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "design"
+    },
+    {
+      "id": "pos-holdout-compound-3strike",
+      "prompt": "Three quick patches failed to stop our Windows mutex deadlock; halt patching, inspect architecture, add a compile or lint enforcer, and document it in docs/solutions",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "compound"
+    },
+    {
+      "id": "pos-holdout-investigate",
+      "prompt": "Explain how ConversionService backpressure works in doc2TeX with exact file:line citations without editing any files",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "investigate"
+    },
+    {
+      "id": "pos-holdout-pr-land",
+      "prompt": "Ship this feature branch as a clean PR with a diff-grounded description, and once approved merge PR #42 and clean up the linked worktree",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "pr"
+    },
+    {
+      "id": "pos-holdout-repo-floor",
+      "prompt": "Check whether this Spring Boot and Next.js repo meets our GitHub Actions SHA pinning, gitignore, secret scanning, and UI anti-slop baseline",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "review"
+    },
+    {
+      "id": "neg-general-trivia",
+      "prompt": "What is the capital of Japan and what timezone is it in?",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "General non-coding Q&A."
+    },
+    {
+      "id": "neg-currency-conversion",
+      "prompt": "Convert 150 USD to VND and explain typical wire transfer fees.",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "Non-engineering consumer question."
+    },
+    {
+      "id": "neg-pure-translation",
+      "prompt": "Translate these three marketing paragraphs into natural Vietnamese without changing the tone.",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "Pure translation and copywriting."
+    },
+    {
+      "id": "neg-mcp-config",
+      "prompt": "Configure the Context7 MCP server and custom Antigravity hooks in my global settings file.",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "Antigravity MCP/hook configuration outside a skill package."
+    },
+    {
+      "id": "neg-antigravity-plugin",
+      "prompt": "Install and enable the Figma partner plugin from the Antigravity Marketplace.",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "Antigravity Marketplace plugin management."
+    },
+    {
+      "id": "neg-holdout-email-rewrite",
+      "prompt": "Rewrite this cold outreach email to sound warmer and more concise for enterprise buyers.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "Pure copywriting outside software engineering."
+    },
+    {
+      "id": "neg-holdout-plugin-bundle",
+      "prompt": "Package an existing MCP server and custom slash hook into an Antigravity plugin manifest.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "Antigravity plugin packaging belongs to the plugin skill."
+    },
+    {
+      "id": "neg-holdout-recipe",
+      "prompt": "Give me a 20-minute weeknight dinner recipe using chicken thighs and mushrooms.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "General non-coding question."
+    }
+  ],
+  "forward_tests": [
+    {
+      "id": "office-hours-wedge-before-code",
+      "mode": "office-hours",
+      "prompt": "office hours: I want to rewrite PBAVN with microservices, Kafka, and GraphQL so match pages load faster.",
+      "invariants": [
+        "Challenges the microservice/Kafka premise against the actual bottleneck before editing any source files",
+        "Proposes a narrow vertical slice with an ASCII flow, failure map, and concrete verification command"
+      ]
+    },
+    {
+      "id": "refactor-rust-monolith-hotspot",
+      "mode": "refactor",
+      "prompt": "src/dashboard.rs grew past 1,200 prod lines with three Mutex .lock().unwrap() calls. Scan hotspots and decompose it cleanly before adding tray notifications.",
+      "invariants": [
+        "Runs scripts/hotspot_scan.py before editing to establish baseline prod LOC, test LOC, and rust_lock_unwrap counts",
+        "Pins observable behavior with passing characterization tests before moving code across modules",
+        "Replaces production .lock().unwrap() poison panics using an explicit Error & Rescue Map and leaves zero scratch files in the repo"
+      ]
+    },
+    {
+      "id": "debug-3strike-and-compound",
+      "mode": "debug",
+      "prompt": "Three quick patches failed to stop our scraper from following unvalidated redirects. Stop guessing, fix the structural cause, add an enforcer, and record it.",
+      "invariants": [
+        "Halts speculative patching and traces the architectural root cause with a failing reproduction before editing",
+        "Promotes prevention above prose docs on the 5-rung Enforcement Ladder and writes a docs/solutions/<slug>.md note with required YAML frontmatter"
+      ]
+    },
+    {
+      "id": "hygiene-fact-monad-delete-gate",
+      "mode": "hygiene",
+      "prompt": "Audit all git worktrees in this repository and tell me which ones are safe to delete. One merged checkout has only __pycache__, one has a gitignored .env file, and one is locked.",
+      "invariants": [
+        "Runs scripts/worktree_audit.py --repo . --json in read-only mode before proposing cleanup",
+        "Classifies only the merged cache-only checkout as SAFE_TO_PRUNE while holding .env and locked checkouts in DIRTY_HOLD",
+        "Requests explicit user confirmation before executing any git worktree remove or git branch deletion"
+      ]
+    },
+    {
+      "id": "review-and-verify-security-and-binary",
+      "mode": "review",
+      "prompt": "Before I push and hand off this release, check my local diff for removed CSRF guards or -DskipTests bypasses, and verify that myapp.exe on my isolated PATH matches target/release/myapp.exe.",
+      "invariants": [
+        "Runs scripts/diff_risk.py and checks removed guards with git blame plus Proof Ladder stop levels",
+        "Runs scripts/win_binary_verify.py and reports any PATH_SHADOWING or SHA256_MISMATCH with exact SHA-256 digests and ASK gates before destructive changes",
+        "Distinguishes every unexecuted check as UNPERFORMED instead of claiming an implicit pass"
+      ]
+    },
+    {
+      "id": "pr-feedback-anti-sycophancy",
+      "mode": "pr",
+      "prompt": "Handle the unresolved CodeRabbit review threads on PR #18, fix valid issues, rebut inaccurate comments with code citations, and check CI on the new commit.",
+      "invariants": [
+        "Runs scripts/pr_context.py and scripts/fetch_pr_feedback.py and checks has_viewer_pending_review before replying",
+        "Assigns explicit 6-verdict outcomes without performative flattery, pushes fixes before replying inline via scripts/thread_actions.py --body-file, and avoids debugging stale-SHA CI failures"
+      ]
+    },
+    {
+      "id": "forge-validate-portable-skill",
+      "mode": "forge",
+      "prompt": "Audit and fix the broken skill directory at ./draft-skill so it passes portable agentskills.io validation cleanly.",
+      "invariants": [
+        "Removes __pycache__ clutter, fixes broken prose paths and frontmatter boundaries, and keeps SKILL.md within word budgets",
+        "Runs scripts/validate_skill.py and confirms exit code 0 with zero errors"
+      ]
+    }
+  ]
+}
