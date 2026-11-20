@@ -1,100 +1,92 @@
 # Braces
 
-A selective development coordinator for Codex, adapted from Poteto/pstack. Braces combines focused playbooks with access to installed specialist skills, while controlling agent and context usage.
+A single unified, zero-dependency `agentskills.io` engineering skill (**`braces`**) backed by 8 progressive-disclosure playbooks, 11 pure Python 3 stdlib verification & GitHub PR CLIs, cross-agent sync tooling, and an ultra-compact global Antigravity guardrail (`GEMINI.md.template`) tailored for polyglot Rust, Next.js/TypeScript, Java/Spring Boot, Python, and Windows desktop workflows.
 
-Ordinary work stays in the main chat. Larger tasks can use a small team when the work is separable or an independent review is justified. Each task gets a budget that covers implementation, fixes, review, and delivery. Helpers cannot spawn more agents.
+## Unified `braces` Architecture (`skills/braces/`)
 
-## Task budgets
+Everything lives in **one single self-contained skill** ([skills/braces/SKILL.md](skills/braces/SKILL.md)) with zero external skill dependencies and zero trigger collisions:
 
-| Task | Total helpers | Active helpers |
-| --- | ---: | ---: |
-| Small, clear change or explanation | 0 | 0 |
-| Standard feature, bug, or investigation | Up to 2 | 1 |
-| Complex migration or multiple independent work units | Up to 4 | 2 |
-| Explicitly requested team or multi-agent workflow | Smallest team satisfying the request | Within host capacity |
+| Mode | On-Demand Playbook (`skills/braces/references/`) | Deterministic Stdlib Scripts (`skills/braces/scripts/`) |
+| :--- | :--- | :--- |
+| **`office-hours` / `design`** | [office-hours-and-design.md](skills/braces/references/office-hours-and-design.md) — premise challenge, vertical scope wedge, ASCII flow + failure map, `DESIGN.md` tokens, 6 edge states | `ui_slop_check.py` (+ optional `context7-mcp`, `chrome-devtools`) |
+| **`build` / `refactor`** | [build-and-refactor.md](skills/braces/references/build-and-refactor.md) — vertical slices, 600L/1,000L prod LOC ceiling, Ousterhout deep modules, Deletion Test, Subtract-Before-Add, characterization pinning, scoped Error & Rescue Map | `hotspot_scan.py` (splits Rust `#[cfg(test)]` from prod LOC, git churn, polyglot smells, OS-temp HTML/Mermaid report) |
+| **`debug` / `investigate` / `compound`** | [debug-and-compound.md](skills/braces/references/debug-and-compound.md) — attempt-#1 4-phase root-cause loop, 2-strike premise check, 3-strike architecture stop, 5-rung Enforcement Ladder, `docs/solutions/` YAML schema, minimalist `AGENTS.md` | `hotspot_scan.py`, `repo_floor.py`, `worktree_audit.py` |
+| **`hygiene`** | [worktree-hygiene.md](skills/braces/references/worktree-hygiene.md) — 4-gate git worktree startup, read-only 12-fact Fact-Monad delete gate (`SAFE_TO_PRUNE \| NEEDS_SYNC \| DIRTY_HOLD \| UNKNOWN \| CLEAN_ACTIVE`), precious ignored-file protection | `worktree_audit.py` |
+| **`review` / `verify`** | [review-and-verify.md](skills/braces/references/review-and-verify.md) — Step 1.5 scope drift, risk-tier diff audit, `git blame` on removed guards, blast radius, adversarial Refuting Verifier, 5-Level Proof Ladder, `AUTO-FIX` vs `ASK`, repo CI/Actions floor, Windows `.exe` `PATH` SHA-256 parity & shadowing, Web UI anti-slop + OS-temp browser proof | `diff_risk.py`, `repo_floor.py`, `win_binary_verify.py`, `ui_slop_check.py` |
+| **`ship` / `pr` (Create & Land)** | [pr-ship-and-land.md](skills/braces/references/pr-ship-and-land.md) — diff-grounded `--body-file` PR/commit prose, template compliance, bisectable commits, safe push, merge verification, linked worktree teardown | `pr_context.py`, `fetch_pr_feedback.py`, `inspect_pr_checks.py` |
+| **`ship` / `pr` (Feedback, CI & Shepherd)** | [pr-feedback-and-ci.md](skills/braces/references/pr-feedback-and-ci.md) — 6-verdict anti-sycophancy CodeRabbit/human triage, pending-review & stale-SHA guards, remote GitHub Actions CI repair, bounded 2-cycle shepherd loop | `pr_context.py`, `fetch_pr_feedback.py`, `inspect_pr_checks.py`, `thread_actions.py` |
+| **`forge`** | [skill-forge.md](skills/braces/references/skill-forge.md) — 5-pillar authoring, 60/40 holdout trigger evals, anti-leakage blinding, Independent Forward-Testing + quota fallback, `RED -> GREEN -> REFACTOR` pressure tests | `validate_skill.py` |
 
-These are ceilings, not staffing targets. A standard feature can still use zero helpers. File count and importance alone do not justify a larger team. Reserve capacity for required independent review. New evidence can justify one class increase, while keeping agents already used in the count. User budgets and host restrictions take precedence.
+## Repository Layout
 
-## Playbooks and specialist skills
+```text
+braces/
+├── ATTRIBUTION.md                # Upstream attribution notes
+├── GEMINI.md.template            # Copy to ~/.gemini/GEMINI.md (<60 lines)
+├── LICENSE                       # MIT
+├── README.md
+├── skills/
+│   └── braces/                   # Single unified skill
+│       ├── SKILL.md              # Front-door router, budgets, verification laws (<=950w)
+│       ├── references/           # 8 progressive playbooks (each <=880w)
+│       ├── scripts/              # 11 pure Python 3 stdlib CLIs
+│       └── evals/evals.json      # Balanced 60/40 trigger & forward-test invariants
+├── tools/
+│   ├── check.py                  # CI entrypoint wrapping validate_skill.py & doc link checks
+│   └── sync_skills.py            # Validated, idempotent cross-agent installer
+└── tests/                        # 65-test stdlib unittest suite
+```
 
-Braces loads only the playbook relevant to the current work:
+## Quick Start
 
-- [Build](skills/braces/playbooks/build.md) covers features, refactoring, and migrations.
-- [Debug](skills/braces/playbooks/debug.md) covers reproduction, root causes, CI diagnosis, and performance experiments.
-- [Design](skills/braces/playbooks/design.md) covers architecture choices, prototypes, and real UI verification.
-- [Investigate](skills/braces/playbooks/investigate.md) covers explanations, evidence gathering, and session recall.
-- [Review and deliver](skills/braces/playbooks/review-and-deliver.md) covers review, commits, PRs, babysitting, and authorized releases.
-
-The [PR and commit writing guide](skills/braces/references/pr-and-commit-writing.md) defines concrete titles, descriptions scaled to the change, commit rationale, and evidence checks. It follows repository conventions and templates, with examples adapted from pstack's writing guidance. Text is checked against the actual diff and observed verification results.
-
-The [specialist map](skills/braces/references/specialists.md) connects concrete needs to optional installed skills such as architecture, arena, formal verification, UI design, document creation, and PR repair. Loading a specialist is a separate decision from spawning an agent. Braces retains control of the task budget and dispatches.
-
-The playbooks work without pstack installed. If you have pstack, Braces can use its specialists selectively. It does not automatically invoke the Poteto coordinator. An explicit request for a specialist workflow retains that workflow's requirements; Braces reports an incompatible limit instead of claiming a partial run completed it.
-
-## What changes
-
-| Decision | Braces default |
-| --- | --- |
-| Feature, bug fix, refactor, explanation | Complete it in the current chat |
-| Function or module design | Sketch inline; open the design playbook for a real uncertainty |
-| Subagents | Use only justified roles within the task's budget |
-| Follow-up fixes | Reuse a helper for one focused correction, then take over |
-| Comment, prose, and final review | Combine into the main agent's review |
-| Independent review | Use when required or justified by a specific unresolved risk |
-| Models | Keep the current model; preserve configured Sol/Terra and reasoning preferences |
-| Specialist skills | Load only for the requested capability |
-| Verification | Run relevant checks and honor project delivery requirements |
-
-Budgets are instructions to the agent, not runtime quotas or billing controls. Larger context, long builds, research, and difficult debugging can still use substantial resources. No measured token or cost reduction is claimed.
-
-## Install
-
-Clone this repository into a directory you choose:
-
-```sh
+### 1. Clone and Validate the Unified Skill
+```bash
 git clone https://github.com/braces157/braces.git
+cd braces
+python -B tools/check.py
+python -B skills/braces/scripts/validate_skill.py skills --all --json
 ```
 
-Copy the `skills/braces` folder into a supported user skill directory, such as `~/.agents/skills/braces`. For a project-only installation, copy it to `.agents/skills/braces` inside that project. Keep only one discoverable copy. These locations follow the [official Codex customization guidance](https://learn.chatgpt.com/docs/customization/overview#skills).
-
-For PowerShell, run this from the cloned repository. It stops if Braces is already installed there:
-
-```powershell
-$skillDestination = Join-Path $env:USERPROFILE '.agents/skills/braces'
-if (Test-Path -LiteralPath $skillDestination) { throw 'Braces already exists at the destination.' }
-New-Item -ItemType Directory -Force (Split-Path $skillDestination) | Out-Null
-Copy-Item -LiteralPath './skills/braces' -Destination $skillDestination -Recurse
+### 2. Run the Full Test Suite (65 Tests)
+```bash
+python -B -m unittest discover -s tests -v
 ```
 
-Start a new chat and invoke `$braces`, or ask Codex to use Braces.
+### 3. Sync `braces` Cross-Agent
+`tools/sync_skills.py` validates `skills/braces/` via `validate_skill.py` before copying, strips `__pycache__` / `*.pyc` / `README.md` clutter, and prunes stale files inside the destination `braces/` folder idempotently.
 
-## Make Braces your default
+```bash
+# Preview changes without touching disk
+python -B tools/sync_skills.py --target antigravity --dry-run
 
-In the applicable `AGENTS.md`, replace the instruction that automatically loads Poteto with this block. Preserve unrelated project rules and model preferences.
+# Sync unified braces into Antigravity (~/.gemini/config/skills/braces)
+python -B tools/sync_skills.py --target antigravity --json
 
-```md
-Use the braces skill for substantive development tasks.
-Work in the current chat by default. Follow its task-wide delegation budget.
-Do not automatically load poteto-mode or its panels alongside Braces.
-Honor explicit workflow requests and project verification requirements.
+# Sync into Claude Code, Codex, ~/.agents/skills, or all targets at once
+python -B tools/sync_skills.py --target claude
+python -B tools/sync_skills.py --target codex
+python -B tools/sync_skills.py --target agents
+python -B tools/sync_skills.py --target all
 ```
 
-Installing Braces alone does not remove an existing Poteto routing rule. Keeping both default routers active can reintroduce the overhead. Poteto can remain installed for explicit use.
+### 4. Install the Global Antigravity Guardrail
+Inspect [GEMINI.md.template](GEMINI.md.template), adjust any personal preferences, and copy it to `~/.gemini/GEMINI.md` (Windows: `Copy-Item .\GEMINI.md.template "$HOME\.gemini\GEMINI.md"`).
 
-To stop using Braces, remove its default routing block and its installed skill folder. Restore your previous routing instruction if needed.
+## Prior Art & License
 
-## Maintain and evaluate
+All prose and Python stdlib code here is written fresh; no upstream files were copied. Design ideas and engineering mechanisms were synthesized from:
 
-The coordinator is in [SKILL.md](skills/braces/SKILL.md). Copy the entire `skills/braces` folder when installing or updating, including its playbooks and references. The core workflow has no dependency on another skill, a plugin, or an API key. Optional specialists have their own requirements.
+- **`Poteto/pstack`** & **`michael-denyer/pstack-claude`** — Enforcement Ladder, 1,000-line file ceiling, Subtract-Before-Add, 5-level proof ladder, Fact-Monad worktree audit, blinded eval rules, and prose-path validation.
+- **`garrytan/gstack`** — `AUTO-FIX` vs `ASK` autonomy split, Error & Rescue Map, 3-strike architecture stop, Scope Drift checks, and bisectable commits.
+- **`EveryInc/compound-engineering-plugin`** — Institutional memory loop (`docs/solutions/` YAML frontmatter) and promoting recurring findings into `AGENTS.md`.
+- **`mattpocock/skills`** — Ousterhout deep modules, the Deletion Test, and OS-temp self-contained HTML/Mermaid architecture reports.
+- **`karpathy-guidelines`** — 4-pillar compact behavioral core (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution).
+- **`obra/superpowers`** — Skill TDD (`RED -> GREEN -> REFACTOR`), stacked pressure testing, `Excuse | Reality` anti-rationalization tables, CSO anti-shortcut rule, 4-gate worktree startup, and fresh-evidence verification gates.
+- **`trailofbits/skills`** — Risk-tier differential review, `git blame` invariant checks, blast-radius analysis, adversarial Refuting Verifier, and Rust/footgun safety lenses.
+- **`pbakaus/impeccable`** — Deterministic zero-LLM UI anti-slop checks, token grounding (`DESIGN.md`), and edge-state hardening.
+- **`vercel-labs/agent-skills`** — Impact-ranked React/Next.js waterfall, barrel-import, and RSC boundary rules.
+- **`anthropics/skills`** (`skill-creator`) — Explain-the-*why* authoring, 60/40 train/holdout trigger tuning, and blind evaluation discipline.
+- **OpenAI Codex `skill-creator`** — Preserve user intent/scope, degrees of freedom, Independent Forward-Testing on observable invariants, and runtime folder cleanliness.
+- **`steipete/agent-scripts`** — Canonical cross-harness skill sync and prompt-budget discipline.
 
-Run the repository check with Python 3.10 or newer:
-
-```sh
-python tools/check.py
-```
-
-This checks local links, keeps skill links inside the installable folder, and caps instruction size. Limits are 1,250 whitespace-delimited words for the coordinator, 650 per playbook, and 900 per reference. Most tasks load the coordinator and one playbook. Static checks do not prove agent behavior. Use the [behavior scenarios](evals/scenarios.md) when changing delegation or verification rules.
-
-For a usage comparison, run the same representative tasks from the same starting state with the same model, effort, tools, and acceptance checks. Count all descendant work. Report completion quality as well as usage, and distinguish recorded tokens from billing. An instruction-size comparison alone is not a usage benchmark.
-
-See [attribution](ATTRIBUTION.md) and the [MIT license](LICENSE).
+See [ATTRIBUTION.md](ATTRIBUTION.md) and [LICENSE](LICENSE).
