@@ -22,6 +22,36 @@ VALIDATOR_SCRIPT = REPO_ROOT / "skills" / "braces" / "scripts" / "validate_skill
 SKIP_DIR_NAMES = frozenset({"__pycache__", ".git", ".pytest_cache"})
 SKIP_FILE_NAMES = frozenset({".DS_Store", "Thumbs.db", "README.md"})
 SKIP_FILE_SUFFIXES = frozenset({".pyc", ".pyo"})
+TEXT_NORMALIZE_SUFFIXES = frozenset(
+    {
+        ".md",
+        ".txt",
+        ".py",
+        ".json",
+        ".yml",
+        ".yaml",
+        ".toml",
+        ".sh",
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".js",
+        ".mjs",
+        ".cjs",
+        ".ts",
+        ".tsx",
+        ".jsx",
+        ".css",
+        ".html",
+        ".xml",
+        ".svg",
+        ".csv",
+        ".ini",
+        ".cfg",
+        ".conf",
+    }
+)
+TEXT_NORMALIZE_NAMES = frozenset({".gitattributes", ".gitignore", "LICENSE", "Makefile", "Dockerfile"})
 
 
 def configure_stdio() -> None:
@@ -127,10 +157,15 @@ def collect_clean_files(skill_dir: Path) -> tuple[dict[str, Path], list[str]]:
     return (clean_files, skipped)
 
 
+def _is_text_file(src: Path) -> bool:
+    """Return True only for explicitly recognized text file suffixes or names."""
+    return src.suffix.lower() in TEXT_NORMALIZE_SUFFIXES or src.name in TEXT_NORMALIZE_NAMES
+
+
 def _read_normalized_bytes(src: Path) -> bytes:
-    """Read file bytes, normalizing CRLF to LF for valid UTF-8 text files."""
+    """Read file bytes, normalizing CRLF to LF only for recognized UTF-8 text files."""
     raw = src.read_bytes()
-    if b"\x00" not in raw and b"\r\n" in raw:
+    if _is_text_file(src) and b"\x00" not in raw and b"\r\n" in raw:
         try:
             raw.decode("utf-8")
         except UnicodeDecodeError:

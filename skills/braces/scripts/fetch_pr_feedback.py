@@ -227,6 +227,11 @@ def fetch_all_feedback(
             threads_cursor = page.get("endCursor")
             need_threads = bool(page.get("hasNextPage") and threads_cursor)
 
+    if need_comments or need_reviews or need_threads:
+        raise RuntimeError(
+            f"PR feedback pagination exceeded {MAX_GRAPHQL_PAGES} pages; results are incomplete."
+        )
+
     return {
         "viewer": viewer_login or None,
         "pr": pr_meta,

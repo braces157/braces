@@ -6,7 +6,7 @@ Use **`reframe`** and **`sharpen`** for coding tasks where the idea is still rou
 
 - **Always enter (on demand):** User says `sharpen`, `reframe`, *"help me explain this"*, or asks to clarify/rewrite a coding prompt before building.
 - **Auto-enter (selectively):** A coding request is genuinely vague, contradictory, missing a verifiable outcome, or jumps straight to a heavy mechanism (*"maybe add Redis/queues/microservices so it feels better"*) where guessing wrong causes expensive rework.
-- **Skip immediately:** The target files, error, or expected behavior are already clear (*"fix this stack trace"*, *"add `--json` to `export.py`"*), or the user says *"just build it"*. Go straight to **`build`** ([build-and-refactor.md](build-and-refactor.md)) or **`debug`** ([debug-and-compound.md](debug-and-compound.md)).
+- **Skip automatic entry when clear:** When the user did *not* explicitly request sharpening/reframing, skip immediately if target files, error, or expected behavior are already clear (*"fix this stack trace"*, *"add `--json` to `export.py`"*), or if the user says *"just build it"*. Go straight to **`build`** ([build-and-refactor.md](build-and-refactor.md)) or **`debug`** ([debug-and-compound.md](debug-and-compound.md)).
 
 ## 2. `reframe` Mode (Break Out of a Stuck or Solution-First Frame)
 
@@ -14,7 +14,7 @@ Run this first only when the prompt prescribes a mechanism before naming the rea
 
 1. **Name what the current framing fixes:** its **subject** (component/user in focus), **level** (symptom vs mechanism vs workflow), and **scope** (what is held constant).
 2. **Change exactly one** axis and restate the engineering problem in **one plain sentence**. Prefer the shift that makes stuck options irrelevant over picking between them.
-3. **Anti-word-salad self-test:** Before replying, check whether the new sentence still names the same subject at the same level. If so, it is the old frame in new words — discard it and change a different axis once. If the second attempt still fails the test, report that **the current frame holds** and move straight to `sharpen`.
+3. **Anti-word-salad self-test:** Before replying, check whether the new statement keeps the same subject, level, and scope. If none of the three actually shifted, it is the old frame in new words — discard it and change a different axis once. If the second attempt still fails the test, report that **the current frame holds** and move straight to `sharpen`.
 4. **Deliver:** One reframed problem sentence plus one line on what it unlocks that the old framing blocked.
 
 ## 3. `sharpen` Mode (*Deeper, Not Bigger*)

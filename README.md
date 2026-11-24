@@ -35,7 +35,7 @@ braces/
 ├── tools/
 │   ├── check.py                  # CI entrypoint wrapping validate_skill.py & doc link checks
 │   └── sync_skills.py            # Validated, idempotent cross-agent installer
-└── tests/                        # 73-test stdlib unittest suite
+└── tests/                        # 75-test stdlib unittest suite
 ```
 
 ## Quick Start
@@ -48,7 +48,7 @@ python -B tools/check.py
 python -B skills/braces/scripts/validate_skill.py skills --all --json
 ```
 
-### 2. Run the Full Test Suite (73 Tests)
+### 2. Run the Full Test Suite (75 Tests)
 ```bash
 python -B -m unittest discover -s tests -v
 ```

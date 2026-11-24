@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import ModuleType
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 
@@ -108,18 +110,50 @@ class TestPrScriptsSafety(unittest.TestCase):
         self.assertIn("[NEUTRALIZED_END_CI_LOG]", rendered)
         self.assertEqual(rendered.count("--- END UNTRUSTED CI LOG SNIPPET ---"), 1)
 
+    def test_fetch_pr_feedback_raises_on_incomplete_pagination(self) -> None:
+        mod = _load_module("_test_fetch_pr_feedback_pag", SCRIPTS_DIR / "fetch_pr_feedback.py")
+        fake_page = {
+            "data": {
+                "viewer": {"login": "tester"},
+                "repository": {
+                    "pullRequest": {
+                        "number": 1,
+                        "url": "https://github.com/o/r/pull/1",
+                        "title": "Test",
+                        "state": "OPEN",
+                        "headRefOid": "abc",
+                        "comments": {"pageInfo": {"hasNextPage": True, "endCursor": "c1"}, "nodes": []},
+                        "reviews": {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": []},
+                        "reviewThreads": {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": []},
+                    }
+                },
+            }
+        }
+        with patch.object(mod.pr_context, "gh_api_graphql", return_value=fake_page):
+            with self.assertRaises(RuntimeError) as ctx:
+                mod.fetch_all_feedback(
+                    {"owner": "o", "repo": "r", "number": 1, "host": "github.com"},
+                    REPO_ROOT,
+                )
+        self.assertIn("incomplete", str(ctx.exception).lower())
+
     def test_pr_scripts_without_minus_b_create_no_pycache(self) -> None:
-        for script_name in ("fetch_pr_feedback.py", "inspect_pr_checks.py", "thread_actions.py"):
-            proc = subprocess.run(
-                [sys.executable, str(SCRIPTS_DIR / script_name), "--help"],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-        clutter = list(SKILL_DIR.rglob("__pycache__")) + list(SKILL_DIR.rglob("*.pyc"))
-        self.assertEqual(clutter, [])
+        with tempfile.TemporaryDirectory() as tmp:
+            isolated = Path(tmp) / "scripts"
+            isolated.mkdir()
+            for name in ("pr_context.py", "fetch_pr_feedback.py", "inspect_pr_checks.py", "thread_actions.py"):
+                shutil.copy2(SCRIPTS_DIR / name, isolated / name)
+            for script_name in ("fetch_pr_feedback.py", "inspect_pr_checks.py", "thread_actions.py"):
+                proc = subprocess.run(
+                    [sys.executable, "-E", str(isolated / script_name), "--help"],
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                )
+                self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            clutter = list(isolated.rglob("__pycache__")) + list(isolated.rglob("*.pyc"))
+            self.assertEqual(clutter, [])
 
 
 if __name__ == "__main__":

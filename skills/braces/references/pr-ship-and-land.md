@@ -25,7 +25,7 @@ Write for a reviewer who knows the repo but not this chat — lead with reason a
     ```bash
     git log --oneline <base_branch>..HEAD
     git diff --stat <base_branch>...HEAD
-    git diff <base_branch>...HEAD -- . ':!*lock*' ':!*.lock' ':!*generated*'
+    git diff <base_branch>...HEAD -- . ':!*-lock.*' ':!*.lock' ':!*.lockb' ':!*.generated.*'
     ```
   - Verify old plans against the real diff; never invent issue IDs, causes, or test results.
 - **Titles & Commit Subjects:**

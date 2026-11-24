@@ -11,6 +11,7 @@ WORKFLOW_USES_RE = re.compile(
     r"^\s*(?:-\s*)?uses\s*:\s*[\"']?([^\"'\s#]+)[\"']?"
 )
 SHA40_RE = re.compile(r"^[0-9a-fA-F]{40}$")
+DOCKER_SHA256_RE = re.compile(r"@sha256:[0-9a-fA-F]{64}$")
 TOP_PERMISSIONS_RE = re.compile(r"^permissions\s*:(.*)$")
 ANY_PERMISSIONS_RE = re.compile(r"^\s+permissions\s*:(.*)$")
 OVERBROAD_PERMISSIONS_RE = re.compile(r"\bwrite-all\b", re.IGNORECASE)
@@ -136,7 +137,7 @@ def _check_uses_pin(action_ref: str, rel_path: str, lineno: int) -> dict[str, An
     if action_ref.startswith("./") or action_ref.startswith("../"):
         return None
     if action_ref.startswith("docker://"):
-        if "@sha256:" not in action_ref.lower():
+        if not DOCKER_SHA256_RE.search(action_ref):
             return make_finding(
                 finding_id="workflow-unpinned-action",
                 category="github-actions",
@@ -144,8 +145,8 @@ def _check_uses_pin(action_ref: str, rel_path: str, lineno: int) -> dict[str, An
                 autonomy="AUTO-FIX",
                 path=rel_path,
                 line=lineno,
-                message=f"Docker action `{action_ref}` is not pinned to a sha256 digest.",
-                remediation="Pin container actions to an immutable `@sha256:<digest>`.",
+                message=f"Docker action `{action_ref}` is not pinned to a full 64-char sha256 digest.",
+                remediation="Pin container actions to an immutable `@sha256:<64-hex-digest>`.",
             )
         return None
     if "@" not in action_ref:

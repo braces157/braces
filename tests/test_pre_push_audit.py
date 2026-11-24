@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -314,10 +315,11 @@ jobs:
             write_rel(repo, "AGENTS.md", "# Rules\n")
             write_rel(repo, "LICENSE", "MIT\n")
             write_rel(repo, ".gitignore", ".env*\n.audit/\n.wt/\n.taste-skill/\n")
+            full_digest = "0123456789abcdef" * 4
             write_rel(
                 repo,
                 ".github/workflows/ci.yml",
-                """\
+                f"""\
 name: Risky
 on: [push]
 permissions: write-all
@@ -326,6 +328,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: docker://alpine:latest
+      - uses: docker://alpine@sha256:{full_digest}
       - uses: docker://alpine@sha256:0123456789abcdef
       - uses: actions/cache
       - uses: ./.github/actions/local
@@ -350,11 +353,11 @@ jobs:
             )
             self.assertEqual(
                 sorted(item["line"] for item in by_id.get("workflow-unpinned-action", [])),
-                [8, 10],
+                [8, 10, 11],
             )
             self.assertEqual(
                 sorted(item["line"] for item in by_id.get("workflow-test-skip-bypass", [])),
-                [12, 13],
+                [13, 14],
             )
             self.assertNotIn("workflow-missing-secret-scan", by_id)
 
@@ -371,7 +374,6 @@ jobs:
             write_rel(repo, "api/pom.xml", "<project><spotbugs/><dependency-check/></project>\n")
             write_rel(repo, "api/target/app.jar", "jar\n")
             write_rel(repo, "docs/target/notes.txt", "keep\n")
-            write_rel(repo, ".github/dependabot.yml", "version: 2\n")
             write_rel(
                 repo,
                 ".github/workflows/ci.yml",
@@ -406,23 +408,59 @@ jobs:
             self.assertEqual(data["stack_gates"]["js_ts"], {"lint": True, "typecheck": True, "sca": True})
             self.assertEqual(data["stack_gates"]["java"], {"lint": True, "typecheck": True, "sca": True})
 
-    def test_direct_invocation_without_minus_b_leaves_no_pycache(self) -> None:
+    def test_valid_dependabot_satisfies_shared_sca(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
+            init_git_repo(repo)
+            write_rel(repo, "AGENTS.md", "# Rules\n")
+            write_rel(repo, "LICENSE", "MIT\n")
+            write_rel(repo, ".gitignore", ".env*\n.audit/\n.wt/\n.taste-skill/\n")
+            write_rel(repo, "package.json", '{"name":"web","scripts":{"lint":"eslint ."}}\n')
+            write_rel(
+                repo,
+                ".github/dependabot.yml",
+                "version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly\n",
+            )
+            write_rel(
+                repo,
+                ".github/workflows/ci.yml",
+                f"name: CI\non: [push]\npermissions:\n  contents: read\njobs:\n  ci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@{VALID_SHA40}\n      - run: gitleaks detect --no-git\n",
+            )
+            run_git(repo, "add", ".")
+            run_git(repo, "commit", "-m", "dependabot sca")
+
+            proc = run_script(REPO_FLOOR_SCRIPT, "--repo", str(repo), "--json")
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            data = json.loads(proc.stdout)
+            self.assertEqual(data["stack_gates"]["js_ts"], {"lint": True, "typecheck": True, "sca": True})
+
+    def test_direct_invocation_without_minus_b_leaves_no_pycache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = root / "repo"
+            repo.mkdir()
             init_git_repo(repo)
             write_rel(repo, "AGENTS.md", "# Rules\n")
             run_git(repo, "add", ".")
             run_git(repo, "commit", "-m", "init")
 
+            isolated = root / "scripts"
+            isolated.mkdir()
+            shutil.copy2(REPO_FLOOR_SCRIPT, isolated / "repo_floor.py")
+            shutil.copy2(REPO_FLOOR_SCRIPT.parent / "_repo_floor_ci.py", isolated / "_repo_floor_ci.py")
+
             proc = subprocess.run(
-                [sys.executable, str(REPO_FLOOR_SCRIPT), "--repo", str(repo), "--json"],
+                [sys.executable, "-E", str(isolated / "repo_floor.py"), "--repo", str(repo), "--json"],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
                 errors="replace",
             )
-            self.assertIn(proc.returncode, (0, 1))
-            clutter = list(SKILL_DIR.rglob("__pycache__")) + list(SKILL_DIR.rglob("*.pyc"))
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            report = json.loads(proc.stdout)
+            finding_ids = {f["id"] for f in report["findings"]}
+            self.assertIn("missing-ci-workflows", finding_ids)
+            clutter = list(isolated.rglob("__pycache__")) + list(isolated.rglob("*.pyc"))
             self.assertEqual(clutter, [])
 
 

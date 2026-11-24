@@ -10,6 +10,13 @@
       "mode": "sharpen"
     },
     {
+      "id": "pos-sharpen-explicit-clear-task",
+      "prompt": "sharpen: add a --json flag to export.py before I touch code",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "sharpen"
+    },
+    {
       "id": "pos-office-hours-wedge",
       "prompt": "braces office-hours: I want to add real-time multi-table tournament tracking to our web app, help me challenge premises and scope the smallest vertical wedge before we code",
       "should_trigger": true,

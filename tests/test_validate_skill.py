@@ -530,6 +530,8 @@ class SyncSkillsTests(unittest.TestCase):
             assets_dir.mkdir()
             png_header = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
             (assets_dir / "icon.png").write_bytes(png_header)
+            cbor_payload = b"\x42\r\n"  # NUL-free valid UTF-8 binary CBOR byte string
+            (assets_dir / "payload.cbor").write_bytes(cbor_payload)
 
             p1 = run_python(SYNC_SCRIPT, "--source", str(src), "--dest", str(dest), "--json")
             self.assertEqual(p1.returncode, 0, p1.stdout + p1.stderr)
@@ -538,6 +540,7 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertNotIn(b"\r\n", synced_md)
             self.assertEqual(synced_md, crlf_bytes.replace(b"\r\n", b"\n"))
             self.assertEqual((dest / "eol-skill" / "assets" / "icon.png").read_bytes(), png_header)
+            self.assertEqual((dest / "eol-skill" / "assets" / "payload.cbor").read_bytes(), cbor_payload)
 
             # Second sync with CRLF source must remain idempotent (unchanged)
             p2 = run_python(SYNC_SCRIPT, "--source", str(src), "--dest", str(dest), "--json")

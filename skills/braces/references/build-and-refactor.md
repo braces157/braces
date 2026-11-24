@@ -36,7 +36,7 @@ python "<skill-dir>/scripts/hotspot_scan.py" --repo "." --html-report --json
 1. **600 Soft / 1,000 Hard Prod LOC Ceiling:** Never stack new responsibilities onto a touched file past 1,000 prod LOC; carve a cohesive seam first.
 2. **Ousterhout Deep Modules & the Deletion Test:**
    - Prefer fewer *deep modules* (narrow, stable interfaces hiding messy state, concurrency, or I/O) over shallow forwarding helpers.
-   - Apply the **Deletion Test:** collapse any wrapper whose removal leaves callers just as simple; keep a seam only when callers would otherwise duplicate invariants, locking, serialization, or error handling.
+   - Apply the **Deletion Test:** collapse any wrapper whose removal leaves callers just as simple; keep a seam only when callers would otherwise duplicate invariants, locking, serialization, or error handling. Keep public or compatibility wrappers used by external callers unless removal is authorized.
 3. **Subtract-Before-Add ("Code Judo"):**
    - Delete dead branches, unreachable flags, duplicate DTOs, and redundant plumbing *before* creating new files so new interfaces never freeze accidental complexity.
 4. **Characterization-Test Pin First:**
@@ -57,7 +57,7 @@ python "<skill-dir>/scripts/hotspot_scan.py" --repo "." --html-report --json
 - **Rust (e.g. a 1,500-line service or controller module):**
   - Keep a thin facade (`<200` prod LOC) backed by cohesive private submodules (`state.rs`, `parser.rs`, `store.rs`, `render.rs`, `jobs.rs`).
   - Keep unit tests inline under `#[cfg(test)]` and promote multi-module pins to `tests/`.
-  - Replace `.lock().unwrap()` poison panics with explicit recovery (`.unwrap_or_else(|e| e.into_inner())` with logging), typed `Result`, or single-owner channel/actor loops.
+  - Replace `.lock().unwrap()` poison panics with typed `Result`, single-owner channel/actor loops, or explicit recovery (`.unwrap_or_else(|e| e.into_inner())`) that validates or rebuilds the invariant before reuse (propagate an error if validation fails).
   - Isolate `unsafe` FFI/OS calls inside one tiny adapter with a `// SAFETY:` invariant on every block.
 - **Next.js / React (`page.tsx` RSC):**
   - Keep `page.tsx` thin: route params, parallel `Promise.all` fetches, auth/404 guards, and top-level composition.
