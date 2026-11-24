@@ -127,13 +127,35 @@ def collect_clean_files(skill_dir: Path) -> tuple[dict[str, Path], list[str]]:
     return (clean_files, skipped)
 
 
-def _files_identical(src: Path, dst: Path) -> bool:
+def _read_normalized_bytes(src: Path) -> bytes:
+    """Read file bytes, normalizing CRLF to LF for valid UTF-8 text files."""
+    raw = src.read_bytes()
+    if b"\x00" not in raw and b"\r\n" in raw:
+        try:
+            raw.decode("utf-8")
+        except UnicodeDecodeError:
+            return raw
+        return raw.replace(b"\r\n", b"\n")
+    return raw
+
+
+def _copy_normalized(src: Path, dst: Path, content: bytes) -> None:
+    """Write normalized bytes to dst while preserving file permissions."""
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_bytes(content)
+    try:
+        shutil.copymode(src, dst)
+    except OSError:
+        pass
+
+
+def _files_identical(src_bytes: bytes, dst: Path) -> bool:
     if not dst.is_file():
         return False
     try:
-        if src.stat().st_size != dst.stat().st_size:
+        if len(src_bytes) != dst.stat().st_size:
             return False
-        return src.read_bytes() == dst.read_bytes()
+        return src_bytes == dst.read_bytes()
     except OSError:
         return False
 
@@ -181,18 +203,17 @@ def sync_one_skill(skill_dir: Path, dest_root: Path, dry_run: bool) -> dict[str,
 
     for rel_p, src_path in sorted(clean_files.items()):
         dst_path = target_dir / Path(rel_p)
+        src_bytes = _read_normalized_bytes(src_path)
         if rel_p not in existing_rel_files:
             created.append(rel_p)
             if not dry_run:
-                dst_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src_path, dst_path)
-        elif _files_identical(src_path, dst_path):
+                _copy_normalized(src_path, dst_path, src_bytes)
+        elif _files_identical(src_bytes, dst_path):
             unchanged.append(rel_p)
         else:
             updated.append(rel_p)
             if not dry_run:
-                dst_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src_path, dst_path)
+                _copy_normalized(src_path, dst_path, src_bytes)
 
     for rel_p, stale_path in sorted(existing_rel_files.items()):
         if rel_p not in clean_files:

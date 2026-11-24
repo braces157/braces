@@ -307,6 +307,124 @@ jobs:
             self.assertEqual(proc_nongit.returncode, 2)
             self.assertTrue(proc_nongit.stderr.strip())
 
+    def test_workflow_overbroad_permissions_docker_and_extra_bypasses(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            init_git_repo(repo)
+            write_rel(repo, "AGENTS.md", "# Rules\n")
+            write_rel(repo, "LICENSE", "MIT\n")
+            write_rel(repo, ".gitignore", ".env*\n.audit/\n.wt/\n.taste-skill/\n")
+            write_rel(
+                repo,
+                ".github/workflows/ci.yml",
+                """\
+name: Risky
+on: [push]
+permissions: write-all
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker://alpine:latest
+      - uses: docker://alpine@sha256:0123456789abcdef
+      - uses: actions/cache
+      - uses: ./.github/actions/local
+      - run: ./gradlew build -x test
+      - run: git commit --no-verify -m skip
+      - run: gitleaks detect --no-git
+""",
+            )
+            run_git(repo, "add", ".")
+            run_git(repo, "commit", "-m", "risky workflow")
+
+            proc = run_script(REPO_FLOOR_SCRIPT, "--repo", str(repo), "--json")
+            self.assertEqual(proc.returncode, 1)
+            data = json.loads(proc.stdout)
+            by_id: dict[str, list[dict[str, Any]]] = {}
+            for item in data["findings"]:
+                by_id.setdefault(item["id"], []).append(item)
+
+            self.assertEqual(
+                [item["line"] for item in by_id.get("workflow-overbroad-permissions", [])],
+                [3],
+            )
+            self.assertEqual(
+                sorted(item["line"] for item in by_id.get("workflow-unpinned-action", [])),
+                [8, 10],
+            )
+            self.assertEqual(
+                sorted(item["line"] for item in by_id.get("workflow-test-skip-bypass", [])),
+                [12, 13],
+            )
+            self.assertNotIn("workflow-missing-secret-scan", by_id)
+
+    def test_missing_gitignore_nested_target_and_satisfied_stack_gates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            init_git_repo(repo)
+            write_rel(repo, "AGENTS.md", "# Rules\n")
+            write_rel(repo, "LICENSE", "MIT\n")
+            write_rel(repo, "Cargo.toml", "[package]\nname = 'demo'\n")
+            write_rel(repo, "deny.toml", "[advisories]\n")
+            write_rel(repo, "web/package.json", '{"name":"web","scripts":{"audit":"npm audit"}}\n')
+            write_rel(repo, "web/eslint.config.mjs", "export default [];\n")
+            write_rel(repo, "api/pom.xml", "<project><spotbugs/><dependency-check/></project>\n")
+            write_rel(repo, "api/target/app.jar", "jar\n")
+            write_rel(repo, "docs/target/notes.txt", "keep\n")
+            write_rel(repo, ".github/dependabot.yml", "version: 2\n")
+            write_rel(
+                repo,
+                ".github/workflows/ci.yml",
+                f"""\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@{VALID_SHA40}
+      - run: cargo fmt --check && cargo clippy
+      - run: gitleaks detect --no-git
+""",
+            )
+            run_git(repo, "add", ".")
+            run_git(repo, "commit", "-m", "nested target and gates")
+
+            proc = run_script(REPO_FLOOR_SCRIPT, "--repo", str(repo), "--json")
+            self.assertEqual(proc.returncode, 1)
+            data = json.loads(proc.stdout)
+            ids = {f["id"] for f in data["findings"]}
+            self.assertIn("missing-gitignore", ids)
+
+            artifact_paths = {
+                f["path"] for f in data["findings"] if f["id"] == "tracked-artifact-dir"
+            }
+            self.assertEqual(artifact_paths, {"api/target/"})
+            self.assertEqual(data["stack_gates"]["rust"], {"lint": True, "typecheck": True, "sca": True})
+            self.assertEqual(data["stack_gates"]["js_ts"], {"lint": True, "typecheck": True, "sca": True})
+            self.assertEqual(data["stack_gates"]["java"], {"lint": True, "typecheck": True, "sca": True})
+
+    def test_direct_invocation_without_minus_b_leaves_no_pycache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            init_git_repo(repo)
+            write_rel(repo, "AGENTS.md", "# Rules\n")
+            run_git(repo, "add", ".")
+            run_git(repo, "commit", "-m", "init")
+
+            proc = subprocess.run(
+                [sys.executable, str(REPO_FLOOR_SCRIPT), "--repo", str(repo), "--json"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            self.assertIn(proc.returncode, (0, 1))
+            clutter = list(SKILL_DIR.rglob("__pycache__")) + list(SKILL_DIR.rglob("*.pyc"))
+            self.assertEqual(clutter, [])
+
 
 class TestDiffRisk(unittest.TestCase):
     """Tests for scripts/diff_risk.py."""

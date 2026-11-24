@@ -10,11 +10,17 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import pr_context  # noqa: E402
+
+REVIEW_FENCE_BEGIN = "--- BEGIN UNTRUSTED REVIEW CONTENT ---"
+REVIEW_FENCE_END = "--- END UNTRUSTED REVIEW CONTENT ---"
+MAX_GRAPHQL_PAGES = 50
 
 FEEDBACK_QUERY = """\
 query(
@@ -124,7 +130,7 @@ def is_bot_author(author: dict[str, Any] | None) -> bool:
     login = str(author.get("login") or "").lower()
     if typename == "Bot" or login.endswith("[bot]"):
         return True
-    base_login = login.removesuffix("[bot]")
+    base_login = login[:-5] if login.endswith("[bot]") else login
     return any(base_login == prefix or base_login.startswith(prefix) for prefix in KNOWN_BOT_PREFIXES)
 
 
@@ -166,8 +172,10 @@ def fetch_all_feedback(
 
     pr_meta: dict[str, Any] = {}
     viewer_login = ""
+    pages = 0
 
-    while need_comments or need_reviews or need_threads:
+    while (need_comments or need_reviews or need_threads) and pages < MAX_GRAPHQL_PAGES:
+        pages += 1
         resp = pr_context.gh_api_graphql(
             FEEDBACK_QUERY,
             {
@@ -202,22 +210,22 @@ def fetch_all_feedback(
             conn = pr.get("comments") or {}
             comments.extend([n for n in (conn.get("nodes") or []) if n])
             page = conn.get("pageInfo") or {}
-            need_comments = bool(page.get("hasNextPage"))
             comments_cursor = page.get("endCursor")
+            need_comments = bool(page.get("hasNextPage") and comments_cursor)
 
         if need_reviews:
             conn = pr.get("reviews") or {}
             reviews.extend([n for n in (conn.get("nodes") or []) if n])
             page = conn.get("pageInfo") or {}
-            need_reviews = bool(page.get("hasNextPage"))
             reviews_cursor = page.get("endCursor")
+            need_reviews = bool(page.get("hasNextPage") and reviews_cursor)
 
         if need_threads:
             conn = pr.get("reviewThreads") or {}
             threads.extend([n for n in (conn.get("nodes") or []) if n])
             page = conn.get("pageInfo") or {}
-            need_threads = bool(page.get("hasNextPage"))
             threads_cursor = page.get("endCursor")
+            need_threads = bool(page.get("hasNextPage") and threads_cursor)
 
     return {
         "viewer": viewer_login or None,
@@ -363,6 +371,13 @@ def structure_feedback(
     }
 
 
+def _neutralize_review_fences(text: str) -> str:
+    """Neutralize embedded fence markers inside untrusted PR feedback text."""
+    return text.replace(REVIEW_FENCE_BEGIN, "[NEUTRALIZED_BEGIN_REVIEW]").replace(
+        REVIEW_FENCE_END, "[NEUTRALIZED_END_REVIEW]"
+    )
+
+
 def render_text(structured: dict[str, Any]) -> str:
     """Format PR feedback for human/agent inspection with untrusted boundaries."""
     pr = structured["pr"]
@@ -393,29 +408,29 @@ def render_text(structured: dict[str, Any]) -> str:
             lines.append(
                 f"[{idx}] {loc}{flag_str} (thread_id={thr.get('thread_id')}, root_comment_id={thr.get('root_comment_id')})"
             )
-            lines.append("--- BEGIN UNTRUSTED REVIEW CONTENT ---")
+            lines.append(REVIEW_FENCE_BEGIN)
             for c in thr["comments"]:
                 tag = " [bot]" if c["is_bot"] else ""
-                lines.append(f"@{c['author'] or 'unknown'}{tag}: {c['body'].strip()}")
-            lines.append("--- END UNTRUSTED REVIEW CONTENT ---")
+                lines.append(f"@{c['author'] or 'unknown'}{tag}: {_neutralize_review_fences(c['body'].strip())}")
+            lines.append(REVIEW_FENCE_END)
 
     if structured["reviews"]:
         lines.append("\n=== Review Bodies ===")
         for idx, rev in enumerate(structured["reviews"], start=1):
             tag = " [bot]" if rev["is_bot"] else ""
             lines.append(f"[R{idx}] @{rev['author'] or 'unknown'}{tag} ({rev['state']}):")
-            lines.append("--- BEGIN UNTRUSTED REVIEW CONTENT ---")
-            lines.append(rev["body"])
-            lines.append("--- END UNTRUSTED REVIEW CONTENT ---")
+            lines.append(REVIEW_FENCE_BEGIN)
+            lines.append(_neutralize_review_fences(rev["body"]))
+            lines.append(REVIEW_FENCE_END)
 
     if structured["issue_comments"]:
         lines.append("\n=== Top-Level Issue Comments ===")
         for idx, com in enumerate(structured["issue_comments"], start=1):
             tag = " [bot]" if com["is_bot"] else ""
             lines.append(f"[C{idx}] @{com['author'] or 'unknown'}{tag}:")
-            lines.append("--- BEGIN UNTRUSTED REVIEW CONTENT ---")
-            lines.append(com["body"])
-            lines.append("--- END UNTRUSTED REVIEW CONTENT ---")
+            lines.append(REVIEW_FENCE_BEGIN)
+            lines.append(_neutralize_review_fences(com["body"]))
+            lines.append(REVIEW_FENCE_END)
 
     if not (structured["threads"] or structured["reviews"] or structured["issue_comments"]):
         lines.append("\nNo open actionable PR feedback found.")

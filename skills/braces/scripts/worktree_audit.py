@@ -765,7 +765,7 @@ def classify_worktree(
         action = (
             "fast-forward clean default branch after confirmation (git pull --ff-only)"
             if is_default_branch
-            else "report drift and hand off branch push/PR update to pr-workflow"
+            else "report drift and hand off branch push/PR update to PR shipping workflow"
         )
         return STATUS_NEEDS_SYNC, sync_reasons, action
 
