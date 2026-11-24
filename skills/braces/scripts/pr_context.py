@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect git, worktree, PR template, and GitHub PR context for pr-workflow."""
+"""Collect git, worktree, PR template, and GitHub PR context for PR workflows."""
 
 from __future__ import annotations
 
@@ -660,11 +660,16 @@ def main() -> int:
     configure_stdio()
     args = parse_args()
     ctx = gather_context(Path(args.repo), args.pr)
+    if "error" in ctx:
+        if args.json:
+            print(json.dumps(ctx, indent=2, ensure_ascii=False))
+        print(f"error: {ctx['error']}", file=sys.stderr)
+        return 2
     if args.json:
         print(json.dumps(ctx, indent=2, ensure_ascii=False))
     else:
         print(render_text(ctx))
-    return 1 if "error" in ctx else 0
+    return 0
 
 
 if __name__ == "__main__":

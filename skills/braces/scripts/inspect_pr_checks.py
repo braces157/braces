@@ -10,11 +10,16 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import pr_context  # noqa: E402
+
+LOG_FENCE_BEGIN = "--- BEGIN UNTRUSTED CI LOG SNIPPET ---"
+LOG_FENCE_END = "--- END UNTRUSTED CI LOG SNIPPET ---"
 
 ACTIONS_URL_RE = re.compile(r"/actions/runs/(\d+)(?:/job/(\d+))?")
 
@@ -224,9 +229,14 @@ def render_text(report: dict[str, Any], show_all: bool = False) -> str:
                 lines.append(res["note"])
                 continue
             if res.get("log_snippet"):
-                lines.append("--- BEGIN UNTRUSTED CI LOG SNIPPET ---")
-                lines.append(res["log_snippet"])
-                lines.append("--- END UNTRUSTED CI LOG SNIPPET ---")
+                safe_snippet = (
+                    res["log_snippet"]
+                    .replace(LOG_FENCE_BEGIN, "[NEUTRALIZED_BEGIN_CI_LOG]")
+                    .replace(LOG_FENCE_END, "[NEUTRALIZED_END_CI_LOG]")
+                )
+                lines.append(LOG_FENCE_BEGIN)
+                lines.append(safe_snippet)
+                lines.append(LOG_FENCE_END)
             else:
                 lines.append(f"Log unavailable: {res.get('log_error')}")
 

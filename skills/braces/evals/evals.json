@@ -3,29 +3,43 @@
   "version": 2,
   "trigger_tests": [
     {
+      "id": "pos-sharpen-rough-idea",
+      "prompt": "sharpen: I want to make our dashboard search feel smarter and maybe cache queries in Redis, help me turn this into a crisp prompt before coding",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "sharpen"
+    },
+    {
+      "id": "pos-sharpen-explicit-clear-task",
+      "prompt": "sharpen: add a --json flag to export.py before I touch code",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "sharpen"
+    },
+    {
       "id": "pos-office-hours-wedge",
-      "prompt": "braces office-hours: I want to add real-time multi-table tournament tracking to PBAVN, help me challenge premises and scope the smallest vertical wedge before we code",
+      "prompt": "braces office-hours: I want to add real-time multi-table tournament tracking to our web app, help me challenge premises and scope the smallest vertical wedge before we code",
       "should_trigger": true,
       "split": "train",
       "mode": "office-hours"
     },
     {
       "id": "pos-build-feature",
-      "prompt": "braces build: implement customizable keyboard shortcuts in Tuitify in clean vertical slices with unit tests",
+      "prompt": "braces build: implement customizable keyboard shortcuts in our desktop CLI app in clean vertical slices with unit tests",
       "should_trigger": true,
       "split": "train",
       "mode": "build"
     },
     {
       "id": "pos-refactor-monolith",
-      "prompt": "src/usage.rs passed 3,100 lines and has six .lock().unwrap() calls; scan hotspots and split it into deep modules with characterization tests first",
+      "prompt": "src/metrics.rs passed 3,100 lines and has six .lock().unwrap() calls; scan hotspots and split it into deep modules with characterization tests first",
       "should_trigger": true,
       "split": "train",
       "mode": "refactor"
     },
     {
       "id": "pos-debug-root-cause",
-      "prompt": "Fix this bug in pba-vision where homography warps fail when only 3 table corners are visible; reproduce it and trace to the root cause",
+      "prompt": "Fix this bug in our vision pipeline where homography warps fail when only 3 table corners are visible; reproduce it and trace to the root cause",
       "should_trigger": true,
       "split": "train",
       "mode": "debug"
@@ -46,7 +60,7 @@
     },
     {
       "id": "pos-verify-win-binary",
-      "prompt": "I just ran cargo build --release for tuitify; verify that the tuitify executable on my Windows PATH matches the new binary hash with zero shadowing",
+      "prompt": "I just ran cargo build --release for mycli; verify that the mycli executable on my Windows PATH matches the new binary hash with zero shadowing",
       "should_trigger": true,
       "split": "train",
       "mode": "verify"
@@ -66,6 +80,13 @@
       "mode": "forge"
     },
     {
+      "id": "pos-holdout-reframe-vague-idea",
+      "prompt": "Not sure how to explain this well, our desktop app feels clunky when switching workspaces — maybe add a background worker or sqlite cache?",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "reframe"
+    },
+    {
       "id": "pos-holdout-design-ui",
       "prompt": "Design the new settings modal using our DESIGN.md tokens across empty, loading, error, overflow, keyboard, and contrast states, then verify live in Chrome without leaving PNGs in the repo",
       "should_trigger": true,
@@ -81,7 +102,7 @@
     },
     {
       "id": "pos-holdout-investigate",
-      "prompt": "Explain how ConversionService backpressure works in doc2TeX with exact file:line citations without editing any files",
+      "prompt": "Explain how JobQueueService backpressure works in our document converter with exact file:line citations without editing any files",
       "should_trigger": true,
       "split": "holdout",
       "mode": "investigate"
@@ -99,6 +120,13 @@
       "should_trigger": true,
       "split": "holdout",
       "mode": "review"
+    },
+    {
+      "id": "neg-trivial-typo-edit",
+      "prompt": "Fix the spelling typo 'recieve' to 'receive' on line 12 of README.md.",
+      "should_trigger": false,
+      "split": "train",
+      "reason": "Trivial one-line edit that needs no skill process."
     },
     {
       "id": "neg-general-trivia",
@@ -126,14 +154,21 @@
       "prompt": "Configure the Context7 MCP server and custom Antigravity hooks in my global settings file.",
       "should_trigger": false,
       "split": "train",
-      "reason": "Antigravity MCP/hook configuration outside a skill package."
+      "reason": "MCP/hook configuration outside a skill package."
     },
     {
       "id": "neg-antigravity-plugin",
       "prompt": "Install and enable the Figma partner plugin from the Antigravity Marketplace.",
       "should_trigger": false,
       "split": "train",
-      "reason": "Antigravity Marketplace plugin management."
+      "reason": "Marketplace plugin management."
+    },
+    {
+      "id": "neg-holdout-trivial-constant",
+      "prompt": "Change the default port constant from 8080 to 8081 on line 5 of config.py.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "Trivial one-line constant edit outside substantive engineering scope."
     },
     {
       "id": "neg-holdout-email-rewrite",
@@ -144,10 +179,10 @@
     },
     {
       "id": "neg-holdout-plugin-bundle",
-      "prompt": "Package an existing MCP server and custom slash hook into an Antigravity plugin manifest.",
+      "prompt": "Package an existing MCP server and custom slash hook into a plugin manifest.",
       "should_trigger": false,
       "split": "holdout",
-      "reason": "Antigravity plugin packaging belongs to the plugin skill."
+      "reason": "Plugin packaging belongs to the plugin skill."
     },
     {
       "id": "neg-holdout-recipe",
@@ -155,13 +190,31 @@
       "should_trigger": false,
       "split": "holdout",
       "reason": "General non-coding question."
+    },
+    {
+      "id": "neg-holdout-sharpen-sales-pitch",
+      "prompt": "Sharpen and reframe this cold sales pitch email so enterprise buyers book a demo call.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "Non-coding copywriting outside software engineering."
     }
   ],
   "forward_tests": [
     {
+      "id": "reframe-sharpen-before-code",
+      "mode": "sharpen",
+      "prompt": "Not sure how to explain this, our export page feels slow and messy — maybe add a message queue and rewrite the exporter?",
+      "invariants": [
+        "Does not edit any source files before user approval",
+        "Inspects real repository files in read-only mode before reframing or sharpening",
+        "Reframes or sharpens the request deeper rather than bigger, naming raw starting files, non-goals, and an outside verification check",
+        "Separates testable technical probes from at most 2 human choices and pauses with a rewritten prompt waiting for confirmation"
+      ]
+    },
+    {
       "id": "office-hours-wedge-before-code",
       "mode": "office-hours",
-      "prompt": "office hours: I want to rewrite PBAVN with microservices, Kafka, and GraphQL so match pages load faster.",
+      "prompt": "office hours: I want to rewrite our match-tracking web app with microservices, Kafka, and GraphQL so match pages load faster.",
       "invariants": [
         "Challenges the microservice/Kafka premise against the actual bottleneck before editing any source files",
         "Proposes a narrow vertical slice with an ASCII flow, failure map, and concrete verification command"
@@ -170,7 +223,7 @@
     {
       "id": "refactor-rust-monolith-hotspot",
       "mode": "refactor",
-      "prompt": "src/dashboard.rs grew past 1,200 prod lines with three Mutex .lock().unwrap() calls. Scan hotspots and decompose it cleanly before adding tray notifications.",
+      "prompt": "src/view_controller.rs grew past 1,200 prod lines with three Mutex .lock().unwrap() calls. Scan hotspots and decompose it cleanly before adding tray notifications.",
       "invariants": [
         "Runs scripts/hotspot_scan.py before editing to establish baseline prod LOC, test LOC, and rust_lock_unwrap counts",
         "Pins observable behavior with passing characterization tests before moving code across modules",
@@ -204,6 +257,16 @@
         "Runs scripts/diff_risk.py and checks removed guards with git blame plus Proof Ladder stop levels",
         "Runs scripts/win_binary_verify.py and reports any PATH_SHADOWING or SHA256_MISMATCH with exact SHA-256 digests and ASK gates before destructive changes",
         "Distinguishes every unexecuted check as UNPERFORMED instead of claiming an implicit pass"
+      ]
+    },
+    {
+      "id": "pr-ship-and-land-preflight-gate",
+      "mode": "ship",
+      "prompt": "Open a pull request for this feature branch with a diff-grounded description, then merge it and clean up the linked worktree once approved.",
+      "invariants": [
+        "Runs scripts/pr_context.py before mutating git or GitHub state and refuses to push directly to main or master",
+        "Stages explicit named files without git add -A, delivers multiline PR prose via --body-file from OS temp, and removes the temp file afterward",
+        "Requires explicit user confirmation before merging or tearing down the linked worktree"
       ]
     },
     {

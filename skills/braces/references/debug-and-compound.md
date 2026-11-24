@@ -7,24 +7,36 @@ Use **`debug`** from attempt #1 whenever fixing an existing bug, failing test, r
 Never guess from code reading alone when the failure can be reproduced:
 
 1. **Reproduce `RED` & Observe Real Surface:**
-   - Establish exact expected vs. observed behavior via failing test/CLI or `chrome-devtools` (console, network, DOM, cookies, a11y, memory leaks). Route failing remote PR checks to [pr-feedback-and-ci.md](pr-feedback-and-ci.md). If local reproduction is impossible, state the missing environment condition without faking reproduction.
+   - Capture exact expected vs. observed behavior via a failing test/CLI or `chrome-devtools` (console, network, DOM, cookies, a11y, memory leaks).
+   - Route failing remote PR checks to [pr-feedback-and-ci.md](pr-feedback-and-ci.md).
+   - If local reproduction is impossible, state the missing environment condition explicitly without faking reproduction.
 2. **Trace Backward to Fault Boundary:**
-   - Trace backward from the visible symptom to the **first `file:line` where state diverges from the expected invariant**. Use `git log -S`/`git blame` for regressions, and separate environment hazards (stale `.exe` on Windows `PATH`, missing certs, dirty cache) from logic bugs.
+   - Trace backward from the visible symptom to the **first `file:line` where state diverges from the expected invariant**.
+   - Use `git log -S` / `git blame` for regressions.
+   - Separate environment hazards (stale `.exe` on Windows `PATH`, missing certs, dirty cache) from logic bugs.
 3. **One-Hypothesis Loop (2-Strike Premise Check & 3-Strike Stop):**
-   - Test **one** falsifiable hypothesis explaining all symptoms and revert failed trials cleanly — never stack guesses.
-   - **2-Strike Check:** Two failures in the same area -> pause and test their shared assumption.
-   - **3-Strike Stop:** After **3 failed hypotheses/patches** against the same defect (counter never resets across minor tweaks), **halt patching immediately**. Discard trial edits, re-read architecture and state transitions from scratch, list falsified hypotheses, and propose a structural fix or escalate.
+   - Test **one** falsifiable hypothesis explaining all symptoms; revert failed trials cleanly instead of stacking guesses.
+   - **2-Strike Check:** When two attempts fail in the same area, pause and test their shared assumption first.
+   - **3-Strike Stop:** After **3 failed hypotheses/patches** against the same defect (counter never resets across minor tweaks), halt patching immediately:
+     - Discard all trial edits.
+     - Re-read the architecture and state transitions from scratch.
+     - List each falsified hypothesis and why it failed.
+     - Propose a structural fix or escalate to the user.
 4. **Root-Cause Fix, Regression Pin & Delivery Check:**
-   - Fix the originating defect (not a leaf symptom) and add a regression test asserting observable behavior. Verify delivery via [review-and-verify.md](review-and-verify.md) (`scripts/win_binary_verify.py`, `chrome-devtools`, `scripts/diff_risk.py`).
-   - **Performance bugs:** Capture realistic baseline -> change one variable -> re-measure identically -> stop after 2 no-gain trials unless new evidence appears.
+   - Fix the originating defect (not a leaf symptom) and add a regression test asserting observable behavior.
+   - Verify delivery via [review-and-verify.md](review-and-verify.md) (`scripts/win_binary_verify.py`, `chrome-devtools`, `scripts/diff_risk.py`).
+   - **Performance bugs:** Capture a realistic baseline -> change one variable -> re-measure identically -> stop after 2 no-gain trials unless new evidence appears.
 
 ## 2. `investigate` Mode (Read-Only Research & Audits)
 
 Investigation alone never authorizes file edits or git mutations:
 
 - Search targeted symbols (`git grep`) before opening large files; stop expanding once answered with exact `file:line` citations.
-- Separate *how* code works (traced directly from entry point -> state transitions -> output) from *why* it was built (`git log`, PRs, `AGENTS.md`, `docs/solutions/`), marking inferences explicitly.
-- Use bundled audit CLIs for structured snapshots: `scripts/hotspot_scan.py --repo "." --json` (modularity), `scripts/repo_floor.py --repo "." --json` (CI/security floor), `scripts/worktree_audit.py --repo "." --json` (worktrees/sync drift).
+- Separate *how* code works (traced from entry point -> state transitions -> output) from *why* it was built (`git log`, PRs, `AGENTS.md`, `docs/solutions/`), marking inferences explicitly.
+- Use bundled audit CLIs for structured snapshots:
+  - `scripts/hotspot_scan.py --repo "." --json` (modularity).
+  - `scripts/repo_floor.py --repo "." --json` (CI/security floor).
+  - `scripts/worktree_audit.py --repo "." --json` (worktrees/sync drift).
 
 ## 3. `compound` Mode (5-Rung Enforcement Ladder & Memory)
 
@@ -40,7 +52,9 @@ Promote recurring mistakes to the highest rung whose cost fits the risk. Prove e
 
 ### Solution Note Schema (`docs/solutions/<slug>.md`)
 
-Write a note **only** for non-obvious, recurring root causes or runtime traps (skip trivial typos). Search `docs/solutions/` before risky edits in familiar subsystems. Keep body `<= 80` lines (`## Problem`, `## Root Cause`, `## Fix & Enforcer`, `## Verification`) with this exact YAML frontmatter:
+- Write a note **only** for non-obvious, recurring root causes or runtime traps (skip trivial typos).
+- Search `docs/solutions/` before risky edits in familiar subsystems.
+- Keep the body `<= 80` lines (`## Problem`, `## Root Cause`, `## Fix & Enforcer`, `## Verification`) with this exact YAML frontmatter:
 
 ```yaml
 ---
@@ -59,4 +73,5 @@ tags: [stack, subsystem]
 
 ### Minimalist `AGENTS.md` & Pruning Law
 
-Keep project `AGENTS.md` compact and command-backed: `## Architecture & Specs`, `## Behavioral Invariants`, `## Verification & Delivery` (exact commands + Windows `Get-FileHash` SHA-256 check if applicable), and a `## Rule <-> Enforcer Ledger` table (`Invariant / Past Failure | Rung | Concrete Enforcer`). **Pruning Law:** Whenever a prose rule moves up to Rungs 1–4, record the concrete enforcer in the ledger and **delete the redundant prose bullet**.
+- Keep project `AGENTS.md` compact and command-backed: `## Architecture & Specs`, `## Behavioral Invariants`, `## Verification & Delivery` (exact commands + Windows `Get-FileHash` SHA-256 check if applicable), and `## Rule <-> Enforcer Ledger` (`Invariant / Past Failure | Rung | Concrete Enforcer`).
+- **Pruning Law:** Whenever a prose rule moves up to Rungs 1–4, record the concrete enforcer in the ledger and **delete the redundant prose bullet**.

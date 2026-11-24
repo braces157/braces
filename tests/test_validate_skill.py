@@ -363,7 +363,7 @@ class ValidateSkillTests(unittest.TestCase):
         ref_counts = {
             k: v for k, v in res["word_counts"].items() if k.startswith("references/")
         }
-        self.assertEqual(len(ref_counts), 8)
+        self.assertEqual(len(ref_counts), 9)
         for ref_name, count in ref_counts.items():
             self.assertLessEqual(count, 880, f"{ref_name} has {count} words (> 880)")
 
@@ -513,6 +513,42 @@ class SyncSkillsTests(unittest.TestCase):
                 SYNC_SCRIPT, "--source", str(src), "--dest", str(Path(tmp) / "out"), "--skill", "nope"
             )
             self.assertEqual(p_unknown.returncode, 2)
+
+    def test_sync_normalizes_crlf_text_to_lf_and_preserves_binary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src = root / "skills"
+            dest = root / "dest_skills"
+            src.mkdir()
+
+            skill = create_valid_skill(src, "eol-skill")
+            skill_md = skill / "SKILL.md"
+            lf_bytes = skill_md.read_bytes().replace(b"\r\n", b"\n")
+            crlf_bytes = lf_bytes.replace(b"\n", b"\r\n")
+            skill_md.write_bytes(crlf_bytes)
+            assets_dir = skill / "assets"
+            assets_dir.mkdir()
+            png_header = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
+            (assets_dir / "icon.png").write_bytes(png_header)
+            cbor_payload = b"\x42\r\n"  # NUL-free valid UTF-8 binary CBOR byte string
+            (assets_dir / "payload.cbor").write_bytes(cbor_payload)
+
+            p1 = run_python(SYNC_SCRIPT, "--source", str(src), "--dest", str(dest), "--json")
+            self.assertEqual(p1.returncode, 0, p1.stdout + p1.stderr)
+
+            synced_md = (dest / "eol-skill" / "SKILL.md").read_bytes()
+            self.assertNotIn(b"\r\n", synced_md)
+            self.assertEqual(synced_md, crlf_bytes.replace(b"\r\n", b"\n"))
+            self.assertEqual((dest / "eol-skill" / "assets" / "icon.png").read_bytes(), png_header)
+            self.assertEqual((dest / "eol-skill" / "assets" / "payload.cbor").read_bytes(), cbor_payload)
+
+            # Second sync with CRLF source must remain idempotent (unchanged)
+            p2 = run_python(SYNC_SCRIPT, "--source", str(src), "--dest", str(dest), "--json")
+            self.assertEqual(p2.returncode, 0, p2.stdout + p2.stderr)
+            op2 = json.loads(p2.stdout)["targets"][0]["skills"][0]
+            self.assertEqual(op2["created"], [])
+            self.assertEqual(op2["updated"], [])
+            self.assertIn("SKILL.md", op2["unchanged"])
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Braces
 
-A single unified, zero-dependency `agentskills.io` engineering skill (**`braces`**) backed by 8 progressive-disclosure playbooks, 11 pure Python 3 stdlib verification & GitHub PR CLIs, cross-agent sync tooling, and an ultra-compact global Antigravity guardrail (`GEMINI.md.template`) tailored for polyglot Rust, Next.js/TypeScript, Java/Spring Boot, Python, and Windows desktop workflows.
+A single unified, zero-dependency `agentskills.io` engineering skill (**`braces`**) backed by 9 progressive-disclosure playbooks, 11 pure Python 3 stdlib verification & GitHub PR CLIs, cross-agent sync tooling, and an ultra-compact global Antigravity guardrail (`GEMINI.md.template`) tailored for polyglot Rust, Next.js/TypeScript, Java/Spring Boot, Python, and Windows desktop workflows.
 
 ## Unified `braces` Architecture (`skills/braces/`)
 
@@ -8,6 +8,7 @@ Everything lives in **one single self-contained skill** ([skills/braces/SKILL.md
 
 | Mode | On-Demand Playbook (`skills/braces/references/`) | Deterministic Stdlib Scripts (`skills/braces/scripts/`) |
 | :--- | :--- | :--- |
+| **`reframe` / `sharpen`** | [reframe-and-sharpen.md](skills/braces/references/reframe-and-sharpen.md) — smart-auto + on-demand problem reframing (subject/level/scope test) and *deeper, not bigger* prompt sharpening before touching code | Read-only repo inspection |
 | **`office-hours` / `design`** | [office-hours-and-design.md](skills/braces/references/office-hours-and-design.md) — premise challenge, vertical scope wedge, ASCII flow + failure map, `DESIGN.md` tokens, 6 edge states | `ui_slop_check.py` (+ optional `context7-mcp`, `chrome-devtools`) |
 | **`build` / `refactor`** | [build-and-refactor.md](skills/braces/references/build-and-refactor.md) — vertical slices, 600L/1,000L prod LOC ceiling, Ousterhout deep modules, Deletion Test, Subtract-Before-Add, characterization pinning, scoped Error & Rescue Map | `hotspot_scan.py` (splits Rust `#[cfg(test)]` from prod LOC, git churn, polyglot smells, OS-temp HTML/Mermaid report) |
 | **`debug` / `investigate` / `compound`** | [debug-and-compound.md](skills/braces/references/debug-and-compound.md) — attempt-#1 4-phase root-cause loop, 2-strike premise check, 3-strike architecture stop, 5-rung Enforcement Ladder, `docs/solutions/` YAML schema, minimalist `AGENTS.md` | `hotspot_scan.py`, `repo_floor.py`, `worktree_audit.py` |
@@ -28,13 +29,13 @@ braces/
 ├── skills/
 │   └── braces/                   # Single unified skill
 │       ├── SKILL.md              # Front-door router, budgets, verification laws (<=950w)
-│       ├── references/           # 8 progressive playbooks (each <=880w)
+│       ├── references/           # 9 progressive playbooks (each <=880w)
 │       ├── scripts/              # 11 pure Python 3 stdlib CLIs
 │       └── evals/evals.json      # Balanced 60/40 trigger & forward-test invariants
 ├── tools/
 │   ├── check.py                  # CI entrypoint wrapping validate_skill.py & doc link checks
 │   └── sync_skills.py            # Validated, idempotent cross-agent installer
-└── tests/                        # 65-test stdlib unittest suite
+└── tests/                        # 75-test stdlib unittest suite
 ```
 
 ## Quick Start
@@ -47,7 +48,7 @@ python -B tools/check.py
 python -B skills/braces/scripts/validate_skill.py skills --all --json
 ```
 
-### 2. Run the Full Test Suite (65 Tests)
+### 2. Run the Full Test Suite (75 Tests)
 ```bash
 python -B -m unittest discover -s tests -v
 ```
@@ -76,7 +77,7 @@ Inspect [GEMINI.md.template](GEMINI.md.template), adjust any personal preference
 
 All prose and Python stdlib code here is written fresh; no upstream files were copied. Design ideas and engineering mechanisms were synthesized from:
 
-- **`Poteto/pstack`** & **`michael-denyer/pstack-claude`** — Enforcement Ladder, 1,000-line file ceiling, Subtract-Before-Add, 5-level proof ladder, Fact-Monad worktree audit, blinded eval rules, and prose-path validation.
+- **`Poteto/pstack`** & **`michael-denyer/pstack-claude`** — `/sharpen` (*deeper, not bigger*) & problem reframing, Enforcement Ladder, 1,000-line file ceiling, Subtract-Before-Add, 5-level proof ladder, Fact-Monad worktree audit, blinded eval rules, and prose-path validation.
 - **`garrytan/gstack`** — `AUTO-FIX` vs `ASK` autonomy split, Error & Rescue Map, 3-strike architecture stop, Scope Drift checks, and bisectable commits.
 - **`EveryInc/compound-engineering-plugin`** — Institutional memory loop (`docs/solutions/` YAML frontmatter) and promoting recurring findings into `AGENTS.md`.
 - **`mattpocock/skills`** — Ousterhout deep modules, the Deletion Test, and OS-temp self-contained HTML/Mermaid architecture reports.

@@ -3,7 +3,8 @@
 Operating posture: unsandboxed `EAGER` execution. Keep every change surgical, safe, and empirically verified.
 
 ## 0. Unified Front-Door Workflow (`braces` — `~/.gemini/config/skills/braces/`)
-- Use the single unified **`braces`** skill as your front door across the entire engineering lifecycle (all 8 playbooks and 11 stdlib scripts are self-contained inside `~/.gemini/config/skills/braces/`):
+- Use the single unified **`braces`** skill as your front door across the entire engineering lifecycle (all 9 playbooks and 11 stdlib scripts are self-contained inside `~/.gemini/config/skills/braces/`):
+  - **`reframe` / `sharpen`** (*"sharpen"*, *"reframe"*, *"help me explain"*, or rough/vague coding ideas): Reframe solution-first/stuck prompts and sharpen vague ideas (*deeper, not bigger*) into a crisp, verifiable prompt before touching code.
   - **`office-hours` / `design`** (*"office hours"*, *"scope this"*, *"brainstorm"*, *"design UI"*): Challenge premises, cut scope to a vertical wedge, sketch ASCII flow + failure map, ground UI tokens (`DESIGN.md`) and 6 edge states.
   - **`build` / `refactor`** (*"implement"*, *"add feature"*, *"split monolith"*): Fetch live docs via `context7-mcp`; check >600L/1,000L prod files (`hotspot_scan.py`) with characterization pins and deep modules; build in vertical slices.
   - **`debug` / `investigate` / `compound`** (*"fix this bug"*, *"why is X failing"*, *"how does X work?"*): Reproduce `RED` first -> trace to fault boundary -> 1 hypothesis at a time (2-strike premise check, 3-strike stop -> 5-rung Enforcement Ladder + `docs/solutions/`).

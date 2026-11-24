@@ -451,7 +451,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--name",
         required=True,
-        help="Bare executable name to locate on PATH (e.g. tuitify or discodex).",
+        help="Bare executable name to locate on PATH (e.g. myapp or mycli).",
     )
     parser.add_argument(
         "--built",
