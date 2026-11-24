@@ -1,12 +1,12 @@
 ---
 name: braces
 description: >-
-  Unified full-lifecycle engineering skill covering office-hours scoping,
-  architecture/UI design, building, anti-god-file refactoring, root-cause
-  debugging, compounding enforcers, git worktree hygiene, pre-push security and
-  repo-floor audits, Windows PATH binary and web UI delivery verification,
-  GitHub PR shipping, CodeRabbit feedback, CI repair, PR landing, and skill
-  authoring/validation. Use for substantive coding, debugging, refactoring,
+  Unified full-lifecycle engineering skill covering problem reframing, prompt
+  sharpening, office-hours scoping, architecture/UI design, building,
+  anti-god-file refactoring, root-cause debugging, compounding enforcers, git
+  worktree hygiene, pre-push security/repo-floor audits, Windows PATH binary
+  and UI verification, GitHub PR shipping/CI/landing, and skill authoring.
+  Use for rough coding ideas, substantive coding, debugging, refactoring,
   worktree, review, delivery, PR, or skill tasks. Do NOT use for trivial
   one-line edits, non-coding Q&A, pure translation/copywriting, or configuring
   plugins or MCP servers outside skill packages.
@@ -23,16 +23,17 @@ Read `AGENTS.md`/`GEMINI.md` and enough code to identify the target outcome and 
 
 | Mode / Intent | Playbook (Read On Demand) | Bundled Scripts & Optional MCPs |
 | :--- | :--- | :--- |
+| **`reframe` / `sharpen`** — clarify rough coding ideas, rewrite vague prompts (*deeper, not bigger*), pause before editing | [Reframe & Sharpen](references/reframe-and-sharpen.md) | Read-only repo inspection |
 | **`office-hours` / `design`** — premise challenge, vertical wedge, ASCII flow, `DESIGN.md` tokens, 6 edge states | [Office Hours & Design](references/office-hours-and-design.md) | `scripts/ui_slop_check.py`, `context7-mcp`, `chrome-devtools` |
 | **`build` / `refactor`** — vertical slices, >600L/1,000L monolith split, Code Judo (subtract dead code first), deep modules, characterization pins | [Build & Refactor](references/build-and-refactor.md) | `scripts/hotspot_scan.py`, `context7-mcp` |
-| **`debug` / `investigate` / `compound`** — attempt-#1 bug loop, read-only walks, 3-strike stop, Enforcement Ladder (promote fixes from prose to code), `docs/solutions/`, `AGENTS.md` | [Debug & Compound](references/debug-and-compound.md) | `scripts/hotspot_scan.py`, `scripts/repo_floor.py`, `scripts/worktree_audit.py`, `chrome-devtools` |
-| **`hygiene`** — 4-gate worktree startup, 12-fact Fact-Monad (fail-closed known/unknown safety facts) audit, local-vs-origin sync drift | [Worktree Hygiene](references/worktree-hygiene.md) | `scripts/worktree_audit.py` |
+| **`debug` / `investigate` / `compound`** — attempt-#1 bug loop, read-only walks, 3-strike stop, Enforcement Ladder (prose to code), `docs/solutions/`, `AGENTS.md` | [Debug & Compound](references/debug-and-compound.md) | `scripts/hotspot_scan.py`, `scripts/repo_floor.py`, `scripts/worktree_audit.py`, `chrome-devtools` |
+| **`hygiene`** — 4-gate worktree startup, 12-fact Fact-Monad (fail-closed known/unknown facts) audit, local-vs-origin sync drift | [Worktree Hygiene](references/worktree-hygiene.md) | `scripts/worktree_audit.py` |
 | **`review` / `verify`** — pre-push security diff, `git blame` guards, blast radius, repo floor, Windows `.exe` `PATH` SHA-256 parity, UI anti-slop | [Review & Verify](references/review-and-verify.md) | `scripts/diff_risk.py`, `scripts/repo_floor.py`, `scripts/win_binary_verify.py`, `scripts/ui_slop_check.py`, `chrome-devtools` |
 | **`ship` / `pr` (create, describe, land)** — diff-grounded `--body-file` PR/commit prose, push, merge, worktree teardown | [PR Ship & Land](references/pr-ship-and-land.md) | `scripts/pr_context.py`, `scripts/fetch_pr_feedback.py`, `scripts/inspect_pr_checks.py` |
 | **`ship` / `pr` (feedback, CI, shepherd)** — 6-verdict CodeRabbit/human triage, remote Actions CI repair, 2-cycle shepherd | [PR Feedback & CI](references/pr-feedback-and-ci.md) | `scripts/pr_context.py`, `scripts/fetch_pr_feedback.py`, `scripts/inspect_pr_checks.py`, `scripts/thread_actions.py` |
-| **`forge`** — 5-pillar (disclosure, triggers, rationale, TDD, evals) authoring, 60/40 holdout evals, pressure tests (`RED -> GREEN -> REFACTOR`), validation | [Skill Forge](references/skill-forge.md) | `scripts/validate_skill.py` |
+| **`forge`** — 5-pillar authoring, 60/40 holdout evals, pressure tests (`RED -> GREEN -> REFACTOR`), validation | [Skill Forge](references/skill-forge.md) | `scripts/validate_skill.py` |
 
-For PR work, read **only** the active PR playbook (`pr-ship-and-land.md` OR `pr-feedback-and-ci.md`). Never activate a second coordinator; honor explicit user requests for `swarm` or `arena`.
+Auto-enter `reframe`/`sharpen` only when a coding request is genuinely vague or solution-first; skip when target and outcome are clear. For PR work, read **only** the active PR playbook (`pr-ship-and-land.md` OR `pr-feedback-and-ci.md`). Never activate a second coordinator; honor explicit user requests for `swarm` or `arena`.
 
 ## 2. Task-Sizing & Delegation Budgets
 

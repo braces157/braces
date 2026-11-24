@@ -363,7 +363,7 @@ class ValidateSkillTests(unittest.TestCase):
         ref_counts = {
             k: v for k, v in res["word_counts"].items() if k.startswith("references/")
         }
-        self.assertEqual(len(ref_counts), 8)
+        self.assertEqual(len(ref_counts), 9)
         for ref_name, count in ref_counts.items():
             self.assertLessEqual(count, 880, f"{ref_name} has {count} words (> 880)")
 

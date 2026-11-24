@@ -492,7 +492,7 @@ class TestSkillMetadataAndEvals(unittest.TestCase):
     def test_word_budgets_and_links(self) -> None:
         skill_text = SKILL_MD.read_text(encoding="utf-8")
         ref_files = sorted((SKILL_DIR / "references").glob("*.md"))
-        self.assertEqual(len(ref_files), 8)
+        self.assertEqual(len(ref_files), 9)
 
         self.assertLessEqual(len(skill_text.split()), 950)
         for ref_file in ref_files:

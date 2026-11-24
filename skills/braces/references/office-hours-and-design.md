@@ -1,6 +1,6 @@
 # Office Hours & Design Playbook
 
-Use **`office-hours`** when an idea, feature request, or problem statement is still rough and you want to challenge premises, isolate the highest-leverage vertical wedge, and lock a verifiable plan before writing code. Use **`design`** when a specific architecture boundary or UI interaction choice is uncertain enough to cause rework.
+Use **`office-hours`** when an idea, feature request, or problem statement is still rough and you want to challenge premises, isolate the highest-leverage vertical wedge, and lock a verifiable plan before writing code. If the idea itself is still hard to articulate or locked in a solution-first framing, run **`reframe` / `sharpen`** in [reframe-and-sharpen.md](reframe-and-sharpen.md) first. Use **`design`** when a specific architecture boundary or UI interaction choice is uncertain enough to cause rework.
 
 ## 1. `office-hours` Mode (Premise Challenge & Vertical Wedge)
 

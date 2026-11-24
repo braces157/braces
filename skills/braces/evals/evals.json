@@ -3,6 +3,13 @@
   "version": 2,
   "trigger_tests": [
     {
+      "id": "pos-sharpen-rough-idea",
+      "prompt": "sharpen: I want to make our dashboard search feel smarter and maybe cache queries in Redis, help me turn this into a crisp prompt before coding",
+      "should_trigger": true,
+      "split": "train",
+      "mode": "sharpen"
+    },
+    {
       "id": "pos-office-hours-wedge",
       "prompt": "braces office-hours: I want to add real-time multi-table tournament tracking to our web app, help me challenge premises and scope the smallest vertical wedge before we code",
       "should_trigger": true,
@@ -64,6 +71,13 @@
       "should_trigger": true,
       "split": "train",
       "mode": "forge"
+    },
+    {
+      "id": "pos-holdout-reframe-vague-idea",
+      "prompt": "Not sure how to explain this well, our desktop app feels clunky when switching workspaces — maybe add a background worker or sqlite cache?",
+      "should_trigger": true,
+      "split": "holdout",
+      "mode": "reframe"
     },
     {
       "id": "pos-holdout-design-ui",
@@ -169,9 +183,27 @@
       "should_trigger": false,
       "split": "holdout",
       "reason": "General non-coding question."
+    },
+    {
+      "id": "neg-holdout-sharpen-sales-pitch",
+      "prompt": "Sharpen and reframe this cold sales pitch email so enterprise buyers book a demo call.",
+      "should_trigger": false,
+      "split": "holdout",
+      "reason": "Non-coding copywriting outside software engineering."
     }
   ],
   "forward_tests": [
+    {
+      "id": "reframe-sharpen-before-code",
+      "mode": "sharpen",
+      "prompt": "Not sure how to explain this, our export page feels slow and messy — maybe add a message queue and rewrite the exporter?",
+      "invariants": [
+        "Does not edit any source files before user approval",
+        "Inspects real repository files in read-only mode before reframing or sharpening",
+        "Reframes or sharpens the request deeper rather than bigger, naming raw starting files, non-goals, and an outside verification check",
+        "Separates testable technical probes from at most 2 human choices and pauses with a rewritten prompt waiting for confirmation"
+      ]
+    },
     {
       "id": "office-hours-wedge-before-code",
       "mode": "office-hours",
